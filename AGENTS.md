@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Lumison is a music player desktop application built with React, TypeScript, Vite, and Tauri. It supports local file playback, cloud music search (Netease), Internet Archive streaming, and lyrics display with word-by-word synchronization.
+Lumison is a music player desktop application built with React, TypeScript, Vite, and Tauri. It supports local file playback, multi-source cloud music search (Netease, Kugou), Internet Archive streaming, and lyrics display with word-by-word synchronization.
 
 ---
 
@@ -201,7 +201,7 @@ src/
 │   ├── modals/       # Modal dialogs
 │   ├── player/       # Player controls, lyrics view
 │   └── ui/           # UI components (LanguageSwitcher, KeyboardShortcuts)
-├── contexts/         # React contexts (PlayerContext, ThemeContext, I18nContext)
+├── contexts/         # React contexts (ThemeContext, I18nContext) — no PlayerContext; see Architecture below
 ├── hooks/            # Custom React hooks (usePlayer, usePlaylist, useToast)
 ├── i18n/             # Internationalization (locales: zh.ts, en.ts)
 ├── services/         # Business logic
@@ -226,6 +226,31 @@ src/
 - **Tauri 2.0** for desktop app
 - **@react-spring/web** for animations
 - **@tauri-apps/api** for native desktop features
+
+---
+
+## Architecture
+
+### State Management
+
+There is **no `PlayerContext`** despite what older docs implied (and the `usePlayerContext` import in `App.tsx` is dead code pointing at a non-existent file). Player state is composed directly in `App.tsx`:
+
+1. `usePlaylist()` (`src/hooks/usePlaylist.ts`) — queue, shuffle/repeat. Called first.
+2. `usePlayer({ queue, originalQueue, ...setters })` (`src/hooks/usePlayer.ts`, ~800 lines) — owns the audio element (`audioRef`), playback state, and lyrics matching.
+3. The returned state is destructured in `App.tsx` and passed to components as props.
+
+React Context is reserved for cross-cutting concerns: `ThemeContext`, `I18nContext`, and `ToastContext` (`src/hooks/useToast.ts`).
+
+### Frontend-Backend Bridge (Tauri Commands)
+
+Commands are registered in `src-tauri/src/lib.rs` (`AppBuilder::run`) across three Rust modules:
+- `lib.rs`: `open_external_url`, `write_audio_tags` (POSTs tag-write requests to a local tagging HTTP service on `127.0.0.1:28883`)
+- `sqlite_cache.rs`: `get_cached_image`, `put_cached_image`, `delete_cached_image`, `list_cached_keys`, `clear_cached_images`
+- `features.rs`: audio capture (`list_audio_devices`, `start_audio_capture`, `stop_audio_capture`, `list_capture_sessions` — Windows-only, partially stubbed), monitor enumeration (`get_available_monitors`), and multi-window/exhibition mode (`create_output_window`, `enter_exhibition_mode`, `exit_exhibition_mode`)
+
+### Visual Modes
+
+Background mode is one of `gradient` | `fluid` | `melt`, read via `useVisualMode()` (`src/hooks/useVisualMode.ts`), persisted in `localStorage` key `lumison-visual-mode`. Code changing it must dispatch a `visual-mode-changed` window event so subscribers re-read.
 
 ---
 
