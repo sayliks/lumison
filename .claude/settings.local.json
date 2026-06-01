@@ -33,7 +33,8 @@
       "Bash(D:/Project/Web/Lumison/src/components/layout/Background/mobile/index.ts)",
       "Bash(D:/Project/Web/Lumison)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm -v)"
     ]
   }
 }
