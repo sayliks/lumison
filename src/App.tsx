@@ -1,7 +1,5 @@
 import React, { Suspense, lazy, useCallback, useState, useRef, useEffect, useMemo } from "react";
 import { useToast } from "./hooks/useToast";
-import ShaderBackground from "./components/layout/ShaderBackground";
-import { useVisualMode } from "./hooks/useVisualMode";
 import LoadingScreen from "./components/common/LoadingScreen";
 import Onboarding from "./components/common/Onboarding";
 import Controls from "./components/player/Controls";
@@ -41,8 +39,6 @@ const LazyImportMusicDialog = lazy(importImportMusicDialog);
 const App: React.FC = () => {
   const { toast } = useToast();
   const { t } = useI18n();
-
-  const currentVisualMode = useVisualMode();
 
   // Performance monitoring
   usePerformanceOptimization();
@@ -612,12 +608,6 @@ const App: React.FC = () => {
 
   return (
     <div className="relative w-full h-screen flex flex-col overflow-hidden theme-transition bg-black">
-      <ShaderBackground
-        isPlaying={playState === PlayState.PLAYING}
-        colors={currentSong?.colors || []}
-        shaderMode={currentVisualMode}
-      />
-
       <audio
         ref={audioRef}
         src={resolvedAudioSrc && resolvedAudioSrc.trim() ? resolvedAudioSrc : (currentSong?.fileUrl && currentSong.fileUrl.trim() ? currentSong.fileUrl : undefined)}
