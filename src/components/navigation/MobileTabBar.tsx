@@ -1,15 +1,13 @@
 import React from "react";
 
 import { AppView } from "@/app/appTypes";
-import { QueueIcon, SearchIcon, WaveformIcon } from "@/components/common/Icons";
+import { QueueIcon, WaveformIcon } from "@/components/common/Icons";
 
 interface MobileTabBarProps {
   activeView: AppView;
   onViewChange: (view: AppView) => void;
-  onSearchClick: () => void;
   labels: {
     home: string;
-    explore: string;
     library: string;
     queue: string;
     lyrics: string;
@@ -31,12 +29,10 @@ const LibraryIcon: React.FC<{ className?: string }> = ({ className }) => (
 const MobileTabBar: React.FC<MobileTabBarProps> = ({
   activeView,
   onViewChange,
-  onSearchClick,
   labels,
 }) => {
   const items = [
     { id: "home" as const, label: labels.home, icon: <HomeIcon className="h-5 w-5" /> },
-    { id: "search" as const, label: labels.explore, icon: <SearchIcon className="h-5 w-5" /> },
     { id: "library" as const, label: labels.library, icon: <LibraryIcon className="h-5 w-5" /> },
     { id: "queue" as const, label: labels.queue, icon: <QueueIcon className="h-5 w-5" /> },
     { id: "lyrics" as const, label: labels.lyrics, icon: <WaveformIcon className="h-5 w-5" /> },
@@ -45,19 +41,12 @@ const MobileTabBar: React.FC<MobileTabBarProps> = ({
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex h-[70px] items-center justify-around border-t border-white/10 bg-black/90 px-2 backdrop-blur-2xl lg:hidden">
       {items.map((item) => {
-        const isSearch = item.id === "search";
-        const isActive = !isSearch && activeView === item.id;
+        const isActive = activeView === item.id;
         return (
           <button
             key={item.id}
             type="button"
-            onClick={() => {
-              if (isSearch) {
-                onSearchClick();
-                return;
-              }
-              onViewChange(item.id);
-            }}
+            onClick={() => onViewChange(item.id)}
             className={`flex min-w-0 flex-1 flex-col items-center gap-1 text-[11px] font-bold transition-colors duration-200 ${
               isActive ? "text-white" : "text-white/52 hover:text-white/80"
             }`}

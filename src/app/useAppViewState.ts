@@ -11,7 +11,6 @@ interface UseAppViewStateParams {
   playState: PlayState;
   hasLoadedSong: boolean;
   preloadPlaylistPanel: () => void;
-  preloadSearchModal: () => void;
   preloadAlbumMode: () => void;
 }
 
@@ -20,14 +19,10 @@ export const useAppViewState = ({
   playState,
   hasLoadedSong,
   preloadPlaylistPanel,
-  preloadSearchModal,
   preloadAlbumMode,
 }: UseAppViewStateParams) => {
   const [showPlaylist, setShowPlaylist] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [showImportDialog, setShowImportDialog] = useState(false);
   const [hasOpenedPlaylist, setHasOpenedPlaylist] = useState(false);
-  const [hasOpenedSearch, setHasOpenedSearch] = useState(false);
   const [showVolumePopup, setShowVolumePopup] = useState(false);
   const [showSettingsPopup, setShowSettingsPopup] = useState(false);
   const [lyricsFontSize, setLyricsFontSize] = useState(42);
@@ -67,11 +62,6 @@ export const useAppViewState = ({
       localStorage.setItem("lumison-onboarding-seen", "true");
     }
   }, [hasSeenOnboarding]);
-
-  const handleOpenSearch = useCallback(() => {
-    preloadSearchModal();
-    setShowSearch(true);
-  }, [preloadSearchModal]);
 
   const handleOpenPlaylist = useCallback(() => {
     preloadPlaylistPanel();
@@ -141,7 +131,6 @@ export const useAppViewState = ({
       }
 
       hasPrefetchedLazyChunksRef.current = true;
-      preloadSearchModal();
       preloadPlaylistPanel();
       preloadAlbumMode();
     };
@@ -180,19 +169,13 @@ export const useAppViewState = ({
         window.clearTimeout(timeoutId);
       }
     };
-  }, [preloadAlbumMode, preloadPlaylistPanel, preloadSearchModal]);
+  }, [preloadAlbumMode, preloadPlaylistPanel]);
 
   useEffect(() => {
     if (showPlaylist) {
       setHasOpenedPlaylist(true);
     }
   }, [showPlaylist]);
-
-  useEffect(() => {
-    if (showSearch) {
-      setHasOpenedSearch(true);
-    }
-  }, [showSearch]);
 
   useEffect(() => {
     if (viewMode === "lyrics") {
@@ -205,19 +188,6 @@ export const useAppViewState = ({
       setActivePanel("controls");
     }
   }, [isMobileLayout, setActivePanel]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
-        event.preventDefault();
-        preloadSearchModal();
-        setShowSearch((prev) => !prev);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [preloadSearchModal]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -248,12 +218,7 @@ export const useAppViewState = ({
   return {
     showPlaylist,
     setShowPlaylist,
-    showSearch,
-    setShowSearch,
-    showImportDialog,
-    setShowImportDialog,
     hasOpenedPlaylist,
-    hasOpenedSearch,
     showVolumePopup,
     setShowVolumePopup,
     showSettingsPopup,
@@ -269,7 +234,6 @@ export const useAppViewState = ({
     hasSeenOnboarding,
     setHasSeenOnboarding,
     handleLoadingComplete,
-    handleOpenSearch,
     handleOpenPlaylist,
     handleTogglePlaylist,
     handleViewModeChange,

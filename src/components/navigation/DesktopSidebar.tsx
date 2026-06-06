@@ -7,18 +7,15 @@ import {
   InfoIcon,
   PlusIcon,
   QueueIcon,
-  SearchIcon,
   WaveformIcon,
 } from "@/components/common/Icons";
 
 interface DesktopSidebarProps {
   activeView: AppView;
   onViewChange: (view: AppView) => void;
-  onSearchClick: () => void;
   onImportClick: () => void;
   labels: {
     home: string;
-    explore: string;
     library: string;
     queue: string;
     lyrics: string;
@@ -29,7 +26,7 @@ interface DesktopSidebarProps {
 }
 
 interface NavItem {
-  id: AppView | "search";
+  id: AppView;
   label: string;
   icon: React.ReactNode;
 }
@@ -55,25 +52,15 @@ const MenuIcon: React.FC<{ className?: string }> = ({ className }) => (
 const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   activeView,
   onViewChange,
-  onSearchClick,
   onImportClick,
   labels,
 }) => {
   const navItems: NavItem[] = [
     { id: "home", label: labels.home, icon: <HomeIcon className="h-6 w-6" /> },
-    { id: "search", label: labels.explore, icon: <SearchIcon className="h-6 w-6" /> },
     { id: "library", label: labels.library, icon: <LibraryIcon className="h-6 w-6" /> },
     { id: "queue", label: labels.queue, icon: <QueueIcon className="h-6 w-6" /> },
     { id: "lyrics", label: labels.lyrics, icon: <WaveformIcon className="h-6 w-6" /> },
   ];
-
-  const handleNavClick = (id: NavItem["id"]) => {
-    if (id === "search") {
-      onSearchClick();
-      return;
-    }
-    onViewChange(id);
-  };
 
   return (
     <aside
@@ -96,12 +83,12 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
 
       <nav className="flex flex-col gap-2 px-2">
         {navItems.map((item) => {
-          const isActive = item.id !== "search" && activeView === item.id;
+          const isActive = activeView === item.id;
           return (
             <button
               key={item.id}
               type="button"
-              onClick={() => handleNavClick(item.id)}
+              onClick={() => onViewChange(item.id)}
               className={`flex h-[54px] items-center gap-5 rounded-lg px-6 text-[16px] font-semibold transition-colors duration-200 ${
                 isActive
                   ? "bg-white/[0.12] text-white"

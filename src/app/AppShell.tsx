@@ -13,13 +13,11 @@ interface AppShellProps {
   children: React.ReactNode;
   playerBar?: React.ReactNode;
   onViewChange: (view: AppView) => void;
-  onSearchClick: () => void;
   onImportClick: () => void;
   onEnterImmersiveLyrics: () => void;
   onLyricsFontSizeChange: (size: number) => void;
   labels: {
     home: string;
-    explore: string;
     library: string;
     queue: string;
     lyrics: string;
@@ -27,7 +25,6 @@ interface AppShellProps {
     importMusic: string;
     playingNext: string;
     emptyLibrary: string;
-    searchPlaceholder: string;
     settings: string;
     language: string;
     about: string;
@@ -46,7 +43,6 @@ const AppShell: React.FC<AppShellProps> = ({
   children,
   playerBar,
   onViewChange,
-  onSearchClick,
   onImportClick,
   onEnterImmersiveLyrics,
   onLyricsFontSizeChange,
@@ -57,11 +53,9 @@ const AppShell: React.FC<AppShellProps> = ({
       <DesktopSidebar
         activeView={activeView}
         onViewChange={onViewChange}
-        onSearchClick={onSearchClick}
         onImportClick={onImportClick}
         labels={{
           home: labels.home,
-          explore: labels.explore,
           library: labels.library,
           queue: labels.queue,
           lyrics: labels.lyrics,
@@ -78,11 +72,9 @@ const AppShell: React.FC<AppShellProps> = ({
             currentSong={currentSong}
             lyricsFontSize={lyricsFontSize}
             onLyricsFontSizeChange={onLyricsFontSizeChange}
-            onSearchClick={onSearchClick}
             onImportClick={onImportClick}
             onEnterImmersiveLyrics={onEnterImmersiveLyrics}
             labels={{
-              searchPlaceholder: labels.searchPlaceholder,
               import: labels.import,
               settings: labels.settings,
               language: labels.language,
@@ -104,10 +96,8 @@ const AppShell: React.FC<AppShellProps> = ({
           <MobileTabBar
             activeView={activeView}
             onViewChange={onViewChange}
-            onSearchClick={onSearchClick}
             labels={{
               home: labels.home,
-              explore: labels.explore,
               library: labels.library,
               queue: labels.queue,
               lyrics: labels.lyrics,

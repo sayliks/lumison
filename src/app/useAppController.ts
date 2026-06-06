@@ -1,14 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useToast } from "@/hooks/useToast";
 import { useOptimizedAudio } from "@/hooks/usePerformanceOptimization";
 import { usePlayer } from "@/hooks/usePlayer";
 import { usePlaylist } from "@/hooks/usePlaylist";
-import { Song } from "@/types";
-import { buildSongLookupIndexMap, getSongLookupKey } from "@/utils/songLookup";
 
 export const useAppController = () => {
-  const { toast } = useToast();
   const playlist = usePlaylist();
   const player = usePlayer({
     queue: playlist.queue,
@@ -22,8 +18,6 @@ export const useAppController = () => {
     audioRef,
     currentSong,
     handlePlaylistAddition,
-    playIndex,
-    addSongAndPlay,
     setSpeed,
   } = player;
 
@@ -75,10 +69,6 @@ export const useAppController = () => {
     };
   }, []);
 
-  const queueLookupIndexMap = useMemo(
-    () => buildSongLookupIndexMap(playlist.queue),
-    [playlist.queue],
-  );
   const hasLoadedSong = Boolean(currentSong) || playlist.queue.length > 0;
 
   const handleSpeedChange = useCallback(
@@ -111,88 +101,14 @@ export const useAppController = () => {
     [playlist.queue.length, playlist.addLocalFiles, handlePlaylistAddition],
   );
 
-  const handleImportUrl = useCallback(
-    async (input: string): Promise<boolean> => {
-      const trimmed = input.trim();
-
-      if (!trimmed) {
-        return false;
-      }
-
-      const wasEmpty = playlist.queue.length === 0;
-      const result = await playlist.importFromUrl(trimmed);
-
-      if (!result.success) {
-        toast.error(result.message ?? "Failed to load songs from URL");
-        return false;
-      }
-
-      if (result.songs.length > 0) {
-        setTimeout(() => {
-          handlePlaylistAddition(result.songs, wasEmpty);
-        }, 0);
-        toast.success(`Successfully imported ${result.songs.length} songs`);
-        return true;
-      }
-
-      return false;
-    },
-    [
-      playlist.queue.length,
-      playlist.importFromUrl,
-      handlePlaylistAddition,
-      toast,
-    ],
-  );
-
-  const handleImportAndPlay = useCallback(
-    (song: Song) => {
-      const existingIndex = queueLookupIndexMap.get(getSongLookupKey(song)) ?? -1;
-
-      if (existingIndex !== -1) {
-        playIndex(existingIndex);
-      } else {
-        addSongAndPlay(song);
-      }
-    },
-    [queueLookupIndexMap, playIndex, addSongAndPlay],
-  );
-
-  const handleAddToQueue = useCallback(
-    (song: Song) => {
-      console.log("[App] handleAddToQueue called", {
-        songId: song.id,
-        title: song.title,
-        isNetease: song.isNetease,
-        neteaseId: song.neteaseId,
-        needsLyricsMatch: song.needsLyricsMatch,
-        lyricsLength: song.lyrics?.length,
-      });
-
-      if (queueLookupIndexMap.has(getSongLookupKey(song))) {
-        console.log("[App] Song already in queue, skipping");
-        return;
-      }
-
-      playlist.setQueue((prev) => [...prev, song]);
-      playlist.setOriginalQueue((prev) => [...prev, song]);
-      console.log("[App] Song added to queue successfully");
-    },
-    [queueLookupIndexMap, playlist.setQueue, playlist.setOriginalQueue],
-  );
-
   return {
     playlist,
     player,
-    queueLookupIndexMap,
     hasLoadedSong,
     volume,
     setVolume,
     showSpeedIndicator,
     handleSpeedChange,
     handleFileChange,
-    handleImportUrl,
-    handleImportAndPlay,
-    handleAddToQueue,
   };
 };

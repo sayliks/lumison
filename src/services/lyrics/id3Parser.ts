@@ -116,7 +116,7 @@ export const extractAudioTagData = async (
     const timeoutPromise = new Promise<AudioTagExtractionResult>((resolve) => {
       setTimeout(() => {
         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
-        console.warn(`Local metadata parsing timeout (10s) for: ${file.name} (${fileSizeMB}MB). Using online lyrics.`);
+        console.warn(`Local metadata parsing timeout (10s) for: ${file.name} (${fileSizeMB}MB). Skipping embedded lyrics.`);
         resolve({ lyrics: [], source: 'none' });
       }, 10000);
     });
@@ -195,88 +195,6 @@ const parseSYLT = (syltData: any): LyricLine[] => {
     return lyrics;
   } catch (error) {
     console.warn('Failed to parse SYLT data:', error);
-    return [];
-  }
-};
-
-/**
- * Find matching LRC file in the same directory
- * Matches by filename similarity
- */
-export const findMatchingLRCFile = (
-  audioFile: File,
-  lrcFiles: File[]
-): File | null => {
-  if (lrcFiles.length === 0) return null;
-
-  const audioBasename = audioFile.name.replace(/\.[^/.]+$/, '').toLowerCase();
-
-  // Try exact match first
-  const exactMatch = lrcFiles.find((lrc) => {
-    const lrcBasename = lrc.name.replace(/\.[^/.]+$/, '').toLowerCase();
-    return lrcBasename === audioBasename;
-  });
-
-  if (exactMatch) return exactMatch;
-
-  // Try fuzzy match
-  let bestMatch: { file: File; score: number } | null = null;
-  const minSimilarity = 0.7;
-
-  for (const lrcFile of lrcFiles) {
-    const lrcBasename = lrcFile.name.replace(/\.[^/.]+$/, '').toLowerCase();
-    const similarity = calculateSimilarity(audioBasename, lrcBasename);
-
-    if (similarity >= minSimilarity) {
-      if (!bestMatch || similarity > bestMatch.score) {
-        bestMatch = { file: lrcFile, score: similarity };
-      }
-    }
-  }
-
-  return bestMatch?.file || null;
-};
-
-/**
- * Calculate string similarity (Levenshtein distance)
- */
-const calculateSimilarity = (str1: string, str2: string): number => {
-  const len1 = str1.length;
-  const len2 = str2.length;
-  const matrix: number[][] = [];
-
-  for (let i = 0; i <= len1; i++) {
-    matrix[i] = [i];
-  }
-  for (let j = 0; j <= len2; j++) {
-    matrix[0][j] = j;
-  }
-
-  for (let i = 1; i <= len1; i++) {
-    for (let j = 1; j <= len2; j++) {
-      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
-      matrix[i][j] = Math.min(
-        matrix[i - 1][j] + 1,
-        matrix[i][j - 1] + 1,
-        matrix[i - 1][j - 1] + cost
-      );
-    }
-  }
-
-  const distance = matrix[len1][len2];
-  const maxLen = Math.max(len1, len2);
-  return maxLen === 0 ? 1 : 1 - distance / maxLen;
-};
-
-/**
- * Load LRC file content
- */
-export const loadLRCFile = async (file: File): Promise<LyricLine[]> => {
-  try {
-    const text = await file.text();
-    return parseLyrics(text);
-  } catch (error) {
-    console.warn('Failed to load LRC file:', error);
     return [];
   }
 };

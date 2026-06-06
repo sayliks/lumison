@@ -5,9 +5,9 @@ import { Song } from "@/types";
 import {
   AuraLogo,
   CloseIcon,
+  CloudDownloadIcon,
   FullscreenIcon,
   MinimizeIcon,
-  SearchIcon,
   SettingsIcon,
 } from "@/components/common/Icons";
 import AboutDialog from "@/components/modals/AboutDialog";
@@ -17,11 +17,9 @@ interface TopCommandBarProps {
   currentSong?: Song | null;
   lyricsFontSize: number;
   onLyricsFontSizeChange: (size: number) => void;
-  onSearchClick: () => void;
   onImportClick: () => void;
   onEnterImmersiveLyrics: () => void;
   labels: {
-    searchPlaceholder: string;
     import: string;
     settings: string;
     language: string;
@@ -48,7 +46,6 @@ const TopCommandBar: React.FC<TopCommandBarProps> = ({
   currentSong,
   lyricsFontSize,
   onLyricsFontSizeChange,
-  onSearchClick,
   onImportClick,
   onEnterImmersiveLyrics,
   labels,
@@ -92,24 +89,16 @@ const TopCommandBar: React.FC<TopCommandBarProps> = ({
     <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center justify-between gap-2 bg-gradient-to-b from-black/80 via-black/55 to-transparent px-4 pt-3 sm:gap-3 lg:px-8" data-tauri-drag-region>
       <button
         type="button"
-        onClick={onSearchClick}
+        onClick={onImportClick}
         className="flex h-12 min-w-0 flex-1 items-center gap-4 rounded-lg border border-white/10 bg-white/[0.12] px-5 text-left text-[16px] font-semibold text-white/55 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-colors duration-200 hover:bg-white/[0.16] hover:text-white/75 md:max-w-[530px]"
-        aria-label={labels.searchPlaceholder}
+        aria-label={labels.import}
         data-tauri-drag-region={false}
       >
-        <SearchIcon className="h-5 w-5 shrink-0" />
-        <span className="truncate">{labels.searchPlaceholder}</span>
+        <CloudDownloadIcon className="h-5 w-5 shrink-0" />
+        <span className="truncate">{labels.import}</span>
       </button>
 
       <div className="flex shrink-0 items-center gap-3" data-tauri-drag-region={false}>
-        <button
-          type="button"
-          onClick={onImportClick}
-          className="hidden h-10 items-center rounded-lg bg-white/[0.10] px-4 text-sm font-bold text-white/80 transition-colors duration-200 hover:bg-white/[0.16] md:flex"
-        >
-          {labels.import}
-        </button>
-
         <button
           type="button"
           className="hidden h-10 w-10 place-items-center rounded-md text-white/82 transition-colors duration-200 hover:bg-white/10 hover:text-white sm:grid"

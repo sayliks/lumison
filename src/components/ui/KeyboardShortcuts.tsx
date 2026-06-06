@@ -178,7 +178,7 @@ const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
 
       return false;
     },
-    50, // Lower priority than SearchModal (100)
+    50,
     true,
   );
 
@@ -264,7 +264,6 @@ const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({
               <ShortcutItem keys={["R"]} label={t("shortcuts.resetSpeed")} />
               <ShortcutItem keys={["V"]} label={t("shortcuts.volumeDialog")} />
               <ShortcutItem keys={["S"]} label={t("shortcuts.speedDialog")} />
-              <ShortcutItem keys={["Ctrl", "K"]} label={t("shortcuts.searchDialog")} />
               <ShortcutItem keys={["Ctrl", "P"]} label={t("shortcuts.togglePlaylist")} />
               <ShortcutItem keys={["Ctrl", "/"]} label={t("shortcuts.toggleShortcuts")} />
             </div>

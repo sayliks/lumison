@@ -1,11 +1,9 @@
 import React, { useMemo, useRef } from "react";
 
-import seasonOne from "../../../images/img1.png";
-import seasonTwo from "../../../images/img2.png";
-import { CloudDownloadIcon, LinkIcon, PlayIcon, QueueIcon, SearchIcon, WaveformIcon } from "@/components/common/Icons";
+import { CloudDownloadIcon, PlayIcon, QueueIcon, WaveformIcon } from "@/components/common/Icons";
 import SmartImage from "@/components/common/SmartImage";
-import { Song } from "@/types";
 import { formatTime } from "@/services/utils";
+import { Song } from "@/types";
 
 interface HomePageProps {
   queue: Song[];
@@ -13,41 +11,19 @@ interface HomePageProps {
   currentSongId?: string;
   isPlaying: boolean;
   onPlayIndex: (index: number) => void;
-  onOpenSearch: () => void;
-  onOpenImportDialog: () => void;
   onOpenQueue: () => void;
   onOpenLyrics: () => void;
   onFilesSelected: (files: FileList) => void;
-  onSearchPreset: (query: string) => void;
   labels: {
-    moods: string[];
     quickPicks: string;
-    tunesForSeason: string;
-    summer: string;
-    exploreSources: string;
     importLocal: string;
-    importUrl: string;
-    searchOnline: string;
     openQueue: string;
     lyrics: string;
-    noMusic: string;
-    selectSong: string;
     sourceLocal: string;
-    sourceNetease: string;
-    sourceArchive: string;
-    sourceKugou: string;
-    sourceUrl: string;
     readyToPlay: string;
     emptyQuickPicks: string;
     nowPlaying: string;
     ready: string;
-    shelfSummerParty: string;
-    shelfKPop: string;
-    shelfJPop: string;
-    shelfArchive: string;
-    shelfNetease: string;
-    shelfKugou: string;
-    shelfAlbums: string;
   };
 }
 
@@ -58,14 +34,6 @@ interface ActionPick {
   icon: React.ReactNode;
   onClick: () => void;
 }
-
-const getSongSourceLabel = (song: Song, labels: HomePageProps["labels"]) => {
-  if (song.isNetease) return labels.sourceNetease;
-  if (song.audioStreamSource === "internet-archive") return labels.sourceArchive;
-  if (song.audioStreamSource === "kugou") return labels.sourceKugou;
-  if (song.fileUrl?.startsWith("blob:")) return labels.sourceLocal;
-  return labels.sourceUrl;
-};
 
 const createFallbackTone = (index: number) => {
   const tones = [
@@ -85,12 +53,9 @@ const HomePage: React.FC<HomePageProps> = ({
   currentSongId,
   isPlaying,
   onPlayIndex,
-  onOpenSearch,
-  onOpenImportDialog,
   onOpenQueue,
   onOpenLyrics,
   onFilesSelected,
-  onSearchPreset,
   labels,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -114,20 +79,6 @@ const HomePage: React.FC<HomePageProps> = ({
       onClick: () => fileInputRef.current?.click(),
     },
     {
-      id: "search",
-      title: labels.searchOnline,
-      description: labels.emptyQuickPicks,
-      icon: <SearchIcon className="h-5 w-5" />,
-      onClick: onOpenSearch,
-    },
-    {
-      id: "import-url",
-      title: labels.importUrl,
-      description: labels.readyToPlay,
-      icon: <LinkIcon className="h-5 w-5" />,
-      onClick: onOpenImportDialog,
-    },
-    {
       id: "queue",
       title: labels.openQueue,
       description: labels.emptyQuickPicks,
@@ -136,46 +87,12 @@ const HomePage: React.FC<HomePageProps> = ({
     },
   ];
 
-  const shelves = [
-    {
-      title: labels.shelfSummerParty,
-      query: "summer party",
-      image: seasonOne,
-      tone: "from-cyan-500/40 to-blue-950",
-    },
-    {
-      title: labels.shelfKPop,
-      query: "k-pop party hits",
-      image: seasonTwo,
-      tone: "from-pink-500/35 to-purple-950",
-    },
-    {
-      title: labels.shelfJPop,
-      query: "j-pop summer",
-      image: seasonOne,
-      tone: "from-rose-500/35 to-black",
-    },
-    {
-      title: labels.shelfArchive,
-      query: "live music archive",
-      image: seasonTwo,
-      tone: "from-emerald-500/30 to-slate-950",
-    },
-  ];
-
-  const sources = [
-    { title: labels.shelfNetease, query: "netease" },
-    { title: labels.shelfKugou, query: "kugou" },
-    { title: labels.shelfArchive, query: "internet archive music" },
-    { title: labels.shelfAlbums, query: "album" },
-  ];
-
   return (
     <div className="mx-auto w-full max-w-[1540px] pb-10">
       <input
         ref={fileInputRef}
         type="file"
-        accept="audio/*"
+        accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm"
         multiple
         className="hidden"
         onChange={(event) => {
@@ -186,20 +103,7 @@ const HomePage: React.FC<HomePageProps> = ({
         }}
       />
 
-      <div className="mb-14 flex gap-3 overflow-x-auto pb-2 pt-7">
-        {labels.moods.map((mood) => (
-          <button
-            key={mood}
-            type="button"
-            onClick={() => onSearchPreset(mood)}
-            className="h-10 shrink-0 rounded-lg bg-white/[0.12] px-4 text-sm font-bold text-white/88 transition-colors duration-200 hover:bg-white/[0.18]"
-          >
-            {mood}
-          </button>
-        ))}
-      </div>
-
-      <section className="mb-20">
+      <section className="mb-20 pt-8">
         <div className="mb-6 flex items-center gap-5">
           <div className="h-[62px] w-[62px] overflow-hidden rounded-full bg-white/[0.08]">
             {activeSong?.coverUrl ? (
@@ -216,7 +120,7 @@ const HomePage: React.FC<HomePageProps> = ({
         </div>
 
         {quickPickSongs.length > 0 ? (
-          <div className="grid gap-x-12 gap-y-3 xl:grid-cols-3 md:grid-cols-2">
+          <div className="grid gap-x-12 gap-y-3 md:grid-cols-2 xl:grid-cols-3">
             {quickPickSongs.map((song, visualIndex) => {
               const queueIndex = queue.findIndex((item) => item.id === song.id);
               const isCurrent = currentSongId === song.id;
@@ -243,7 +147,7 @@ const HomePage: React.FC<HomePageProps> = ({
                       {song.artist}
                       {song.album ? ` - ${song.album}` : ""}
                       {song.duration ? ` - ${formatTime(song.duration / 1000)}` : ""}
-                      {` - ${getSongSourceLabel(song, labels)}`}
+                      {` - ${labels.sourceLocal}`}
                     </div>
                   </div>
                   {isCurrent && (
@@ -256,7 +160,7 @@ const HomePage: React.FC<HomePageProps> = ({
             })}
           </div>
         ) : (
-          <div className="grid gap-x-12 gap-y-3 xl:grid-cols-3 md:grid-cols-2">
+          <div className="grid gap-x-12 gap-y-3 md:grid-cols-2 xl:grid-cols-3">
             {actionPicks.map((item) => (
               <button
                 key={item.id}
@@ -275,49 +179,6 @@ const HomePage: React.FC<HomePageProps> = ({
             ))}
           </div>
         )}
-      </section>
-
-      <section className="mb-16">
-        <div className="mb-5">
-          <p className="mb-1 text-sm font-bold uppercase tracking-normal text-white/58">{labels.tunesForSeason}</p>
-          <h2 className="text-[38px] font-extrabold leading-none tracking-normal text-white">{labels.summer}</h2>
-        </div>
-        <div className="flex gap-6 overflow-x-auto pb-3">
-          {shelves.map((tile) => (
-            <button
-              key={tile.title}
-              type="button"
-              onClick={() => onSearchPreset(tile.query)}
-              className="relative h-[218px] w-[260px] shrink-0 overflow-hidden rounded-lg text-left shadow-[0_16px_38px_rgba(0,0,0,0.36)]"
-            >
-              <img src={tile.image} alt="" className="h-full w-full object-cover" />
-              <div className={`absolute inset-0 bg-gradient-to-br ${tile.tone}`} />
-              <div className="absolute inset-0 bg-black/18" />
-              <div className="absolute inset-x-5 bottom-5 text-[28px] font-extrabold leading-[0.95] text-white drop-shadow">
-                {tile.title}
-              </div>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h2 className="mb-5 text-2xl font-extrabold text-white">{labels.exploreSources}</h2>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {sources.map((source, index) => (
-            <button
-              key={source.title}
-              type="button"
-              onClick={() => onSearchPreset(source.query)}
-              className={`h-[118px] overflow-hidden rounded-lg bg-gradient-to-br ${createFallbackTone(index + 2)} p-5 text-left shadow-[0_16px_38px_rgba(0,0,0,0.28)] transition-transform duration-200 hover:-translate-y-1`}
-            >
-              <div className="mb-6 grid h-8 w-8 place-items-center rounded-md bg-white/18">
-                <SearchIcon className="h-4 w-4 text-white" />
-              </div>
-              <div className="text-xl font-extrabold leading-tight text-white">{source.title}</div>
-            </button>
-          ))}
-        </div>
       </section>
 
       {activeSong && (

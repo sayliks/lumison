@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 
-import { PlayIcon, SearchIcon } from "@/components/common/Icons";
+import { CloudDownloadIcon, PlayIcon } from "@/components/common/Icons";
 import SmartImage from "@/components/common/SmartImage";
 import { Song } from "@/types";
 
@@ -8,48 +8,45 @@ interface LibraryPageProps {
   queue: Song[];
   currentSongId?: string;
   onPlay: (index: number) => void;
-  onSearchClick: () => void;
+  onFilesSelected: (files: FileList) => void;
   labels: {
     title: string;
     subtitle: string;
     empty: string;
-    search: string;
+    importLocal: string;
     sourceLocal: string;
-    sourceNetease: string;
-    sourceArchive: string;
-    sourceKugou: string;
-    sourceUrl: string;
   };
 }
-
-const getSourceLabel = (song: Song, labels: LibraryPageProps["labels"]) => {
-  if (song.isNetease) return labels.sourceNetease;
-  if (song.audioStreamSource === "internet-archive") return labels.sourceArchive;
-  if (song.audioStreamSource === "kugou") return labels.sourceKugou;
-  if (song.fileUrl?.startsWith("blob:")) return labels.sourceLocal;
-  return labels.sourceUrl;
-};
 
 const LibraryPage: React.FC<LibraryPageProps> = ({
   queue,
   currentSongId,
   onPlay,
-  onSearchClick,
+  onFilesSelected,
   labels,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const grouped = useMemo(() => {
-    const map = new Map<string, Array<{ song: Song; index: number }>>();
-    queue.forEach((song, index) => {
-      const label = getSourceLabel(song, labels);
-      const list = map.get(label) || [];
-      list.push({ song, index });
-      map.set(label, list);
-    });
-    return Array.from(map.entries());
-  }, [labels, queue]);
+    if (queue.length === 0) return [];
+    return [[labels.sourceLocal, queue.map((song, index) => ({ song, index }))] as const];
+  }, [labels.sourceLocal, queue]);
 
   return (
     <div className="mx-auto w-full max-w-[1220px] pb-10 pt-6">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm"
+        multiple
+        className="hidden"
+        onChange={(event) => {
+          if (event.target.files) {
+            onFilesSelected(event.target.files);
+          }
+          event.target.value = "";
+        }}
+      />
+
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="mb-2 text-sm font-bold uppercase tracking-normal text-white/52">{labels.subtitle}</p>
@@ -57,11 +54,11 @@ const LibraryPage: React.FC<LibraryPageProps> = ({
         </div>
         <button
           type="button"
-          onClick={onSearchClick}
+          onClick={() => fileInputRef.current?.click()}
           className="flex h-10 w-fit items-center gap-2 rounded-lg bg-white/[0.12] px-4 text-sm font-bold text-white/82 hover:bg-white/[0.18]"
         >
-          <SearchIcon className="h-4 w-4" />
-          {labels.search}
+          <CloudDownloadIcon className="h-4 w-4" />
+          {labels.importLocal}
         </button>
       </div>
 

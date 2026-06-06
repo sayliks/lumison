@@ -2,9 +2,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTransition, animated } from '@react-spring/web';
 import { Song } from '../../types';
-import { CheckIcon, PlusIcon, QueueIcon, TrashIcon, SelectAllIcon, CloudDownloadIcon, SearchIcon } from '../common/Icons';
+import { CheckIcon, QueueIcon, TrashIcon, SelectAllIcon, CloudDownloadIcon } from '../common/Icons';
 import { useKeyboardScope } from '../../hooks/useKeyboardScope';
-import ImportMusicDialog from '../modals/ImportMusicDialog';
 import SmartImage from '../common/SmartImage';
 import { useI18n } from '../../contexts/I18nContext';
 import { buildSongIdIndexMap } from '../../utils/songLookup';
@@ -41,11 +40,9 @@ interface PlaylistPanelProps {
     queue: Song[];
     currentSongId?: string;
     onPlay: (index: number) => void;
-    onImport: (url: string) => Promise<boolean>;
     onRemove: (ids: string[]) => void;
     accentColor: string;
     onFilesSelected?: (files: FileList) => void;
-    onSearchClick: () => void;
 }
 
 const PlaylistPanel: React.FC<PlaylistPanelProps> = ({
@@ -54,14 +51,11 @@ const PlaylistPanel: React.FC<PlaylistPanelProps> = ({
     queue,
     currentSongId,
     onPlay,
-    onImport,
     onRemove,
     accentColor,
     onFilesSelected,
-    onSearchClick
 }) => {
     const { t } = useI18n();
-    const [isAdding, setIsAdding] = useState(false);
 
     const [isEditing, setIsEditing] = useState(false);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -80,7 +74,7 @@ const PlaylistPanel: React.FC<PlaylistPanelProps> = ({
     // ESC key support using keyboard scope
     useKeyboardScope(
         (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && !isAdding) {
+            if (e.key === 'Escape') {
                 e.preventDefault();
                 onClose();
                 return true; // Claim the event
@@ -125,7 +119,7 @@ const PlaylistPanel: React.FC<PlaylistPanelProps> = ({
     // Close on click outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (isOpen && !isAdding && panelRef.current && !panelRef.current.contains(event.target as Node)) {
+            if (isOpen && panelRef.current && !panelRef.current.contains(event.target as Node)) {
                 onClose();
             }
         };
@@ -136,15 +130,7 @@ const PlaylistPanel: React.FC<PlaylistPanelProps> = ({
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isOpen, onClose, isAdding]);
-
-    const handleImport = async (url: string) => {
-        const success = await onImport(url);
-        if (success) {
-            setIsAdding(false);
-        }
-        return success;
-    };
+    }, [isOpen, onClose]);
 
     const toggleSelection = (id: string) => {
         const newSet = new Set(selectedIds);
@@ -266,25 +252,11 @@ const PlaylistPanel: React.FC<PlaylistPanelProps> = ({
                             ) : (
                                 <>
                                     <button
-                                        onClick={onSearchClick}
-                                        className="w-8 h-8 rounded-full flex items-center justify-center transition-all text-white/50 hover:text-white hover:bg-white/10"
-                                        title={`${t("topBar.search")} (Cmd+K)`}
-                                    >
-                                        <SearchIcon className="w-5 h-5" />
-                                    </button>
-                                    <button
                                         onClick={() => fileInputRef.current?.click()}
                                         className="w-8 h-8 rounded-full flex items-center justify-center transition-all text-white/50 hover:text-white hover:bg-white/10"
                                         title={t("playlist.importLocal")}
                                     >
                                         <CloudDownloadIcon className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        onClick={() => setIsAdding(true)}
-                                        className="w-8 h-8 rounded-full flex items-center justify-center transition-all text-white/50 hover:text-white hover:bg-white/10"
-                                        title={t("playlist.addFromUrl")}
-                                    >
-                                        <PlusIcon className="w-5 h-5" />
                                     </button>
                                     <button
                                         onClick={() => setIsEditing(true)}
@@ -418,16 +390,9 @@ const PlaylistPanel: React.FC<PlaylistPanelProps> = ({
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm,.lrc,.txt"
+                accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm"
                 multiple
                 className="hidden"
-            />
-
-            {/* Import Music Dialog */}
-            <ImportMusicDialog
-                isOpen={isAdding}
-                onClose={() => setIsAdding(false)}
-                onImport={handleImport}
             />
         </>
     );

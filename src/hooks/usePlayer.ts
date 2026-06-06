@@ -10,26 +10,9 @@ import {
 import { Song, PlayState, PlayMode } from "../types";
 import { extractColors, shuffleArray } from "../services/utils";
 import { parseLyrics } from "../services/lyrics";
-import {
-  fetchLyricsById,
-  searchAndMatchLyrics,
-} from "../services/music/lyricsService";
 import { audioResourceCache } from "../services/cache";
-import { buildSongIdIndexMap, buildSongIdMap } from "../utils/songLookup";
-import {
-  createNeteaseLyricsCacheKey,
-  createSearchLyricsCacheKey,
-  getCachedMatchedLyrics,
-  seedCachedMatchedLyrics,
-} from "../services/lyrics/matchCache";
 
 type MatchStatus = "idle" | "matching" | "success" | "failed";
-type LyricsMatchPayload = {
-  lrc: string;
-  yrc?: string;
-  tLrc?: string;
-  metadata: string[];
-};
 
 interface UsePlayerParams {
   queue: Song[];
@@ -38,25 +21,6 @@ interface UsePlayerParams {
   setQueue: Dispatch<SetStateAction<Song[]>>;
   setOriginalQueue: Dispatch<SetStateAction<Song[]>>;
 }
-
-const MATCH_TIMEOUT_MS = 15000; // 15s total — enough for 2-3 endpoint attempts at 5s each
-
-const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
-  return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error("Lyrics request timed out"));
-    }, timeoutMs);
-    promise
-      .then((value) => {
-        clearTimeout(timer);
-        resolve(value);
-      })
-      .catch((error) => {
-        clearTimeout(timer);
-        reject(error);
-      });
-  });
-};
 
 export const usePlayer = ({
   queue,
@@ -402,20 +366,6 @@ export const usePlayer = ({
     setPlayMode(mode);
   }, [setPlayMode]);
 
-  const mergeLyricsWithMetadata = useCallback(
-    (result: { lrc: string; yrc?: string; tLrc?: string; metadata: string[] }) => {
-      const parsed = parseLyrics(result.lrc);
-      const metadataCount = result.metadata.length;
-      const metadataLines = result.metadata.map((text, idx) => ({
-        time: -0.1 * (metadataCount - idx),
-        text,
-        isMetadata: true,
-      }));
-      return [...metadataLines, ...parsed].sort((a, b) => a.time - b.time);
-    },
-    [],
-  );
-
   const loadLyricsFile = useCallback(
     (file?: File) => {
       if (!file || !currentSong) return;
@@ -433,49 +383,6 @@ export const usePlayer = ({
     [currentSong, updateSongInQueue],
   );
 
-  const resolveMatchedLyrics = useCallback(
-    (cacheKey: string, loader: () => Promise<LyricsMatchPayload | null>) =>
-      getCachedMatchedLyrics(cacheKey, loader, mergeLyricsWithMetadata),
-    [mergeLyricsWithMetadata],
-  );
-
-  // 统一的 enrichment 函数 - 避免代码重复
-  const enrichLyricsInBackground = useCallback(
-    async (
-      songId: string,
-      lyricsCacheKey: string,
-      isNetease: boolean,
-      neteaseId?: string,
-      title?: string,
-      artist?: string,
-    ) => {
-      try {
-        const matchedLyrics = await resolveMatchedLyrics(
-          lyricsCacheKey,
-          () =>
-            withTimeout(
-              isNetease && neteaseId
-                ? fetchLyricsById(neteaseId)
-                : title && artist
-                  ? searchAndMatchLyrics(title, artist)
-                  : Promise.resolve(null),
-              MATCH_TIMEOUT_MS,
-            ),
-        );
-        if (!matchedLyrics) return;
-        const hasWordTiming = matchedLyrics.some((l) => l.words && l.words.length > 0);
-        if (hasWordTiming) {
-          updateSongInQueue(songId, { lyrics: matchedLyrics, needsLyricsMatch: false });
-        } else {
-          updateSongInQueue(songId, { needsLyricsMatch: false });
-        }
-      } catch {
-        updateSongInQueue(songId, { needsLyricsMatch: false });
-      }
-    },
-    [resolveMatchedLyrics, updateSongInQueue],
-  );
-
   useEffect(() => {
     if (!currentSong) {
       if (matchStatus !== "idle") {
@@ -485,16 +392,9 @@ export const usePlayer = ({
     }
 
     const songId = currentSong.id;
-    const songTitle = currentSong.title;
-    const songArtist = currentSong.artist;
     const needsLyricsMatch = currentSong.needsLyricsMatch;
     const existingLyrics = currentSong.lyrics ?? [];
-    const isNeteaseSong = currentSong.isNetease;
-    const songNeteaseId = currentSong.neteaseId;
     const localLyrics = currentSong.localLyrics ?? [];
-    const lyricsCacheKey = isNeteaseSong && songNeteaseId
-      ? createNeteaseLyricsCacheKey(songNeteaseId)
-      : createSearchLyricsCacheKey(songTitle, songArtist);
 
     let cancelled = false;
 
@@ -512,146 +412,31 @@ export const usePlayer = ({
     };
 
     if (existingLyrics.length > 0) {
-      seedCachedMatchedLyrics(lyricsCacheKey, existingLyrics);
       markMatchSuccess();
-
-      // If we have local lyrics but online enrichment is still desired, try silently in background
-      if (!needsLyricsMatch) return;
-
-      // Background enrichment — don't block or change matchStatus
-      enrichLyricsInBackground(songId, lyricsCacheKey, isNeteaseSong, songNeteaseId, songTitle, songArtist);
       return;
     }
 
-    // If no existing lyrics but we have localLyrics (from ID3 or sidecar), use them immediately
+    // Automatic lyrics matching is intentionally local-only:
+    // use lyrics already extracted from embedded audio tags, and do not search
+    // sidecar files or remote providers.
     if (localLyrics.length > 0) {
-      updateSongInQueue(songId, { lyrics: localLyrics });
-      seedCachedMatchedLyrics(lyricsCacheKey, localLyrics);
+      updateSongInQueue(songId, { lyrics: localLyrics, needsLyricsMatch: false });
       markMatchSuccess();
-
-      // Still try enrichment in background if needed
-      if (needsLyricsMatch) {
-        enrichLyricsInBackground(songId, lyricsCacheKey, isNeteaseSong, songNeteaseId, songTitle, songArtist);
-      }
       return;
     }
 
-    if (!needsLyricsMatch) {
-      markMatchFailed();
-      return;
+    if (needsLyricsMatch) {
+      updateSongInQueue(songId, {
+        needsLyricsMatch: false,
+      });
     }
 
-    const fetchLyrics = async () => {
-      setMatchStatus("matching");
-      try {
-        const matchedLyrics = await resolveMatchedLyrics(
-          lyricsCacheKey,
-          () =>
-            withTimeout(
-              isNeteaseSong && songNeteaseId
-                ? fetchLyricsById(songNeteaseId)
-                : searchAndMatchLyrics(songTitle, songArtist),
-              MATCH_TIMEOUT_MS,
-            ),
-        );
-
-        if (cancelled) return;
-
-        if (matchedLyrics) {
-          updateSongInQueue(songId, {
-            lyrics: matchedLyrics,
-            needsLyricsMatch: false,
-          });
-          markMatchSuccess();
-        } else {
-          if (localLyrics.length > 0) {
-            updateSongInQueue(songId, {
-              lyrics: localLyrics,
-              needsLyricsMatch: false,
-            });
-            markMatchSuccess();
-          } else {
-            markMatchFailed();
-          }
-        }
-      } catch (error) {
-        if (localLyrics.length > 0) {
-          updateSongInQueue(songId, {
-            lyrics: localLyrics,
-            needsLyricsMatch: false,
-          });
-          markMatchSuccess();
-        } else {
-          markMatchFailed();
-        }
-      }
-    };
-
-    fetchLyrics();
+    markMatchFailed();
 
     return () => {
       cancelled = true;
     };
-  }, [currentSong?.id, resolveMatchedLyrics, updateSongInQueue]);
-
-  // 预加载接下来最多5首歌的歌词
-  useEffect(() => {
-    if (queue.length === 0) {
-      return;
-    }
-
-    const startIdx = currentIndex >= 0 ? currentIndex + 1 : 0;
-    if (startIdx >= queue.length) {
-      return;
-    }
-
-    const preloadWindowSize = 5;
-    const endIdx = Math.min(queue.length - 1, startIdx + preloadWindowSize - 1);
-
-    const timers: number[] = [];
-
-    for (let i = startIdx; i <= endIdx; i++) {
-      const song = queue[i];
-      
-      if (!song || !song.needsLyricsMatch || (song.lyrics && song.lyrics.length > 0)) {
-        continue;
-      }
-
-      const lyricsCacheKey = song.isNetease && song.neteaseId
-        ? createNeteaseLyricsCacheKey(song.neteaseId)
-        : createSearchLyricsCacheKey(song.title, song.artist);
-
-      // 延迟逐渐增加，避免瞬时过多请求
-      const delay = 2000 + (i - startIdx) * 500;
-      const timer = window.setTimeout(async () => {
-        try {
-          const matchedLyrics = await resolveMatchedLyrics(
-            lyricsCacheKey,
-            () =>
-              withTimeout(
-                song.isNetease && song.neteaseId
-                  ? fetchLyricsById(song.neteaseId)
-                  : searchAndMatchLyrics(song.title, song.artist),
-                MATCH_TIMEOUT_MS,
-              ),
-          );
-
-          if (matchedLyrics) {
-            updateSongInQueue(song.id, {
-              lyrics: matchedLyrics,
-              needsLyricsMatch: false,
-            });
-          }
-        } catch {
-          // Silent failure for preloading
-        }
-      }, delay);
-
-      timers.push(timer);
-    }
-
-    return () => timers.forEach(timer => clearTimeout(timer));
-  }, [currentIndex, queue, queue.length, updateSongInQueue, resolveMatchedLyrics]);
+  }, [currentSong?.id, updateSongInQueue]);
 
   useEffect(() => {
     const audio = audioRef.current;

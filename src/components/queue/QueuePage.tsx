@@ -1,9 +1,9 @@
 import React, { useRef } from "react";
 
-import { CloudDownloadIcon, LinkIcon, PlayIcon, SearchIcon, TrashIcon } from "@/components/common/Icons";
+import { CloudDownloadIcon, PlayIcon, TrashIcon } from "@/components/common/Icons";
 import SmartImage from "@/components/common/SmartImage";
-import { Song } from "@/types";
 import { formatTime } from "@/services/utils";
+import { Song } from "@/types";
 
 interface QueuePageProps {
   queue: Song[];
@@ -11,31 +11,15 @@ interface QueuePageProps {
   onPlay: (index: number) => void;
   onRemove: (ids: string[]) => void;
   onFilesSelected: (files: FileList) => void;
-  onImportClick: () => void;
-  onSearchClick: () => void;
   labels: {
     title: string;
     empty: string;
     addSongs: string;
     importLocal: string;
-    importUrl: string;
-    search: string;
     remove: string;
     sourceLocal: string;
-    sourceNetease: string;
-    sourceArchive: string;
-    sourceKugou: string;
-    sourceUrl: string;
   };
 }
-
-const getSourceLabel = (song: Song, labels: QueuePageProps["labels"]) => {
-  if (song.isNetease) return labels.sourceNetease;
-  if (song.audioStreamSource === "internet-archive") return labels.sourceArchive;
-  if (song.audioStreamSource === "kugou") return labels.sourceKugou;
-  if (song.fileUrl?.startsWith("blob:")) return labels.sourceLocal;
-  return labels.sourceUrl;
-};
 
 const QueuePage: React.FC<QueuePageProps> = ({
   queue,
@@ -43,8 +27,6 @@ const QueuePage: React.FC<QueuePageProps> = ({
   onPlay,
   onRemove,
   onFilesSelected,
-  onImportClick,
-  onSearchClick,
   labels,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +36,7 @@ const QueuePage: React.FC<QueuePageProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="audio/*"
+        accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm"
         multiple
         className="hidden"
         onChange={(event) => {
@@ -70,32 +52,14 @@ const QueuePage: React.FC<QueuePageProps> = ({
           <p className="mb-2 text-sm font-bold uppercase tracking-normal text-white/52">{labels.addSongs}</p>
           <h1 className="text-[40px] font-extrabold leading-none text-white">{labels.title}</h1>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex h-10 items-center gap-2 rounded-lg bg-white/[0.12] px-4 text-sm font-bold text-white/82 hover:bg-white/[0.18]"
-          >
-            <CloudDownloadIcon className="h-4 w-4" />
-            {labels.importLocal}
-          </button>
-          <button
-            type="button"
-            onClick={onImportClick}
-            className="flex h-10 items-center gap-2 rounded-lg bg-white/[0.12] px-4 text-sm font-bold text-white/82 hover:bg-white/[0.18]"
-          >
-            <LinkIcon className="h-4 w-4" />
-            {labels.importUrl}
-          </button>
-          <button
-            type="button"
-            onClick={onSearchClick}
-            className="flex h-10 items-center gap-2 rounded-lg bg-white/[0.12] px-4 text-sm font-bold text-white/82 hover:bg-white/[0.18]"
-          >
-            <SearchIcon className="h-4 w-4" />
-            {labels.search}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="flex h-10 w-fit items-center gap-2 rounded-lg bg-white/[0.12] px-4 text-sm font-bold text-white/82 hover:bg-white/[0.18]"
+        >
+          <CloudDownloadIcon className="h-4 w-4" />
+          {labels.importLocal}
+        </button>
       </div>
 
       {queue.length === 0 ? (
@@ -135,7 +99,7 @@ const QueuePage: React.FC<QueuePageProps> = ({
                     <div className="truncate text-xs font-semibold text-white/48">
                       {song.artist}
                       {song.album ? ` - ${song.album}` : ""}
-                      {` - ${getSourceLabel(song, labels)}`}
+                      {` - ${labels.sourceLocal}`}
                     </div>
                   </div>
                 </div>

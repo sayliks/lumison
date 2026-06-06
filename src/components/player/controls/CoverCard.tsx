@@ -87,11 +87,7 @@ const CoverCard: React.FC<CoverCardProps> = ({
           </h3>
           {artist && (
             <p 
-              className="text-xs truncate leading-tight text-white/55 mt-0.5 cursor-pointer hover:text-white/80 transition-colors"
-              onClick={() => {
-                window.open(`https://zh.wikipedia.org/wiki/${encodeURIComponent(artist)}`, '_blank');
-              }}
-              title={t("player.searchOnWikipedia")}
+              className="text-xs truncate leading-tight text-white/55 mt-0.5"
             >
               {album && artist ? `${album} / ${artist}` : (album || artist || '')}
             </p>
