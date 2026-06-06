@@ -10,7 +10,6 @@ import {
 import { Song, PlayState, PlayMode } from "../types";
 import { extractColors, shuffleArray } from "../services/utils";
 import { parseLyrics } from "../services/lyrics";
-import { audioResourceCache } from "../services/cache";
 
 type MatchStatus = "idle" | "matching" | "success" | "failed";
 
@@ -416,9 +415,8 @@ export const usePlayer = ({
       return;
     }
 
-    // Automatic lyrics matching is intentionally local-only:
-    // use lyrics already extracted from embedded audio tags, and do not search
-    // sidecar files or remote providers.
+    // Automatic lyrics matching is intentionally local-only: use lyrics prepared
+    // during import from embedded tags or matching sidecar files.
     if (localLyrics.length > 0) {
       updateSongInQueue(songId, { lyrics: localLyrics, needsLyricsMatch: false });
       markMatchSuccess();
@@ -611,7 +609,6 @@ export const usePlayer = ({
   useEffect(() => {
     let canceled = false;
     let currentObjectUrl: string | null = null;
-    let controller: AbortController | null = null;
 
     const releaseObjectUrl = () => {
       if (currentObjectUrl) {
@@ -627,15 +624,14 @@ export const usePlayer = ({
       setBufferProgress(0);
       return () => {
         canceled = true;
-        controller?.abort();
         releaseObjectUrl();
       };
     }
 
     const fileUrl = currentSong.fileUrl;
 
-    // Already a blob or data URL - use directly
-    if (fileUrl.startsWith("blob:") || fileUrl.startsWith("data:")) {
+    // Local sources are used directly; remote audio URLs are intentionally unsupported.
+    if (fileUrl.startsWith("blob:") || fileUrl.startsWith("data:") || fileUrl.startsWith("file:")) {
       releaseObjectUrl();
       setResolvedAudioSrc(fileUrl);
       setIsBuffering(false);
@@ -645,96 +641,14 @@ export const usePlayer = ({
       };
     }
 
-    // Check cache first
-    const cachedBlob = audioResourceCache.get(fileUrl);
-    if (cachedBlob) {
-      releaseObjectUrl();
-      currentObjectUrl = URL.createObjectURL(cachedBlob);
-      setResolvedAudioSrc(currentObjectUrl);
-      setIsBuffering(false);
-      setBufferProgress(1);
-      return () => {
-        canceled = true;
-        releaseObjectUrl();
-      };
-    }
-
-    // Use the original URL directly - let browser handle native buffering
-    // This is the most reliable approach and works for any file size
     releaseObjectUrl();
-    setResolvedAudioSrc(null); // Use original fileUrl via fallback in audio element
-    setIsBuffering(true);
+    setResolvedAudioSrc(null);
+    setIsBuffering(false);
     setBufferProgress(0);
-
-    // Download in background for caching (does not affect playback)
-    const cacheInBackground = async () => {
-      if (typeof fetch !== "function") return;
-
-      controller = new AbortController();
-      try {
-        const response = await fetch(fileUrl, { signal: controller.signal });
-        if (!response.ok) {
-          throw new Error("Failed to load audio: " + response.status);
-        }
-
-        const totalBytes = Number(response.headers.get("content-length")) || 0;
-
-        if (!response.body) {
-          const fallbackBlob = await response.blob();
-          if (canceled) return;
-          audioResourceCache.set(fileUrl, fallbackBlob);
-          setBufferProgress(1);
-          // Don't switch - will be used next time
-          return;
-        }
-
-        const reader = response.body.getReader();
-        const chunks: BlobPart[] = [];
-        let loaded = 0;
-
-        while (!canceled) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          if (value) {
-            chunks.push(value);
-            loaded += value.byteLength;
-            if (totalBytes > 0) {
-              setBufferProgress(Math.min(loaded / totalBytes, 0.99));
-            } else {
-              setBufferProgress((prev) => {
-                const increment = value.byteLength / (5 * 1024 * 1024);
-                return Math.min(0.95, prev + increment);
-              });
-            }
-          }
-        }
-
-        if (canceled) return;
-
-        const blob = new Blob(chunks, {
-          type: response.headers.get("content-type") || "audio/mpeg",
-        });
-        audioResourceCache.set(fileUrl, blob);
-        setBufferProgress(1);
-        // Don't switch to blob URL during playback - it would restart the audio
-        // The cached blob will be used automatically next time this song is played
-      } catch (error) {
-        if (!canceled) {
-          // Not critical - browser is still playing via native buffering
-          console.warn("Background audio caching failed:", error);
-        }
-      } finally {
-        if (!canceled) {
-          setIsBuffering(false);
-        }
-      }
-    };
-
-    cacheInBackground();
+    console.warn("Unsupported non-local audio source ignored:", fileUrl);
 
     return () => {
       canceled = true;
-      controller?.abort();
       releaseObjectUrl();
     };
   }, [currentSong?.fileUrl]);

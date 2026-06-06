@@ -20,6 +20,36 @@ export interface AudioTagExtractionResult {
   source: 'id3' | 'flac' | 'none';
 }
 
+const normalizeBaseName = (fileName: string): string => {
+  return fileName
+    .replace(/\.[^/.]+$/, "")
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
+};
+
+export const findMatchingLRCFile = (
+  audioFile: File,
+  lyricsFiles: File[],
+): File | null => {
+  const audioBaseName = normalizeBaseName(audioFile.name);
+
+  return (
+    lyricsFiles.find((lyricsFile) => {
+      const ext = lyricsFile.name.split(".").pop()?.toLowerCase();
+      if (ext !== "lrc" && ext !== "txt") {
+        return false;
+      }
+
+      return normalizeBaseName(lyricsFile.name) === audioBaseName;
+    }) ?? null
+  );
+};
+
+export const loadLRCFile = async (file: File): Promise<LyricLine[]> => {
+  const content = await file.text();
+  return parseLyrics(content);
+};
+
 const extractPictureFromTags = (tags: any): string | undefined => {
   if (!tags?.picture?.data || !tags?.picture?.format) {
     return undefined;

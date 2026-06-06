@@ -3,7 +3,6 @@
  * Desktop-only: Writes metadata and lyrics to audio files via LrcApi
  * 
  * Note: This requires LrcApi server to be running on localhost:28883
- * Download from: https://github.com/HisAtri/LrcApi
  */
 
 import { invoke } from '@tauri-apps/api/core';

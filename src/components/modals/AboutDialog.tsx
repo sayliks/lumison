@@ -1,7 +1,6 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { useI18n } from "../../contexts/I18nContext";
-import { invoke } from "@tauri-apps/api/core";
 
 interface AboutDialogProps {
     isOpen: boolean;
@@ -10,17 +9,6 @@ interface AboutDialogProps {
 
 const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => {
     const { t } = useI18n();
-
-    const openExternalLink = async (event: React.MouseEvent | MouseEvent, url: string) => {
-        event.preventDefault?.();
-        event.stopPropagation?.();
-
-        try {
-            await invoke("open_external_url", { url });
-        } catch {
-            window.open(url, "_blank", "noopener,noreferrer");
-        }
-    };
 
     if (!isOpen) return null;
 
@@ -67,27 +55,6 @@ const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => {
                         <br />
                         {t("about.inspiredBy")}
                     </p>
-
-                    {/* Selection List */}
-                    <div className="w-full flex flex-col gap-3 mb-6">
-                        <button
-                            onClick={(e) => openExternalLink(e as any, "https://github.com/SalixJFrost/Lumison")}
-                            className="group relative flex items-center justify-between px-4 py-3.5 rounded-2xl border border-white/12 bg-white/[0.03] text-sm font-medium text-white/80 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300 cursor-pointer overflow-hidden"
-                        >
-                            <span className="relative z-10">{t("about.viewOnGitHub")}</span>
-                            <span className="relative z-10 text-[11px] text-white/40 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-300">↗</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/5 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        </button>
-
-                        <button
-                            onClick={(e) => openExternalLink(e as any, "https://github.com/salixfrost")}
-                            className="group relative flex items-center justify-between px-4 py-3.5 rounded-2xl border border-white/12 bg-white/[0.03] text-sm font-medium text-white/80 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300 cursor-pointer overflow-hidden"
-                        >
-                            <span className="relative z-10">{t("about.createdBy")}</span>
-                            <span className="relative z-10 text-[11px] text-white/40 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-300">↗</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        </button>
-                    </div>
                 </div>
 
                 {/* Footer / Close */}
@@ -104,11 +71,5 @@ const AboutDialog: React.FC<AboutDialogProps> = ({ isOpen, onClose }) => {
         document.body
     );
 };
-
-const TechBadge = ({ label }: { label: string }) => (
-    <div className="flex items-center justify-center py-2 px-1 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
-        <span className="text-[11px] font-medium text-white/60">{label}</span>
-    </div>
-);
 
 export default AboutDialog;

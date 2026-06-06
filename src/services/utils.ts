@@ -1,6 +1,5 @@
 import { loadImageElementWithCache } from "./cache";
 import { generateBlurhash } from "../utils/blurhash";
-import { fetchJSON } from "./request";
 
 declare const ColorThief: any;
 
@@ -21,50 +20,6 @@ export const shuffleArray = <T>(array: T[]): T[] => {
     [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
   }
   return newArr;
-};
-
-// Track which base URLs have confirmed CORS support to skip the proxy on subsequent calls
-const corsWorkingCache = new Set<string>();
-
-export const fetchViaProxy = async <T = unknown>(
-  targetUrl: string,
-  options?: { signal?: AbortSignal }
-): Promise<T> => {
-  const result = await fetchJSON<T>(targetUrl, {
-    signal: options?.signal,
-    timeout: 10000,
-  });
-  return result;
-};
-
-export const parseNeteaseLink = (
-  input: string,
-): { type: "song" | "playlist"; id: string } | null => {
-  try {
-    const url = new URL(input);
-    const params = new URLSearchParams(url.search);
-    // Handle music.163.com/#/song?id=... (Hash router)
-    if (url.hash.includes("/song") || url.hash.includes("/playlist")) {
-      const hashParts = url.hash.split("?");
-      if (hashParts.length > 1) {
-        const hashParams = new URLSearchParams(hashParts[1]);
-        const id = hashParams.get("id");
-        if (id) {
-          if (url.hash.includes("/song")) return { type: "song", id };
-          if (url.hash.includes("/playlist")) return { type: "playlist", id };
-        }
-      }
-    }
-    // Handle standard params
-    const id = params.get("id");
-    if (id) {
-      if (url.pathname.includes("song")) return { type: "song", id };
-      if (url.pathname.includes("playlist")) return { type: "playlist", id };
-    }
-    return null;
-  } catch (e) {
-    return null;
-  }
 };
 
 export const extractColors = async (imageSrc: string): Promise<string[]> => {

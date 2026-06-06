@@ -1,17 +1,11 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/public/icon.svg" alt="Lumison Logo" width="120">
+<img src="../public/icon.svg" alt="Lumison Logo" width="120">
 
 # Lumison
 
 **A Minimalist Music Player with Immersive Visuals**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tauri](https://img.shields.io/badge/Tauri-2.0-blue.svg)](https://tauri.app/)
-[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF.svg)](https://vite.dev/)
-
-[Live Demo](https://salixfrost.github.io/lumison/) • [Download](https://github.com/SalixJFrost/Lumison/releases) • [Report Issues](https://github.com/SalixJFrost/Lumison/issues)
+Local-first desktop player for imported audio files and local lyrics.
 
 </div>
 
@@ -38,7 +32,7 @@
 - **Cross-platform**: Windows, macOS, Linux
 - **Keyboard Shortcuts**: Full hotkey support
 - **Multi-window**: Multi-screen support
-- **System Integration**: Media session API, auto-updates
+- **System Integration**: Media session API and native desktop windows
 
 ---
 
@@ -46,9 +40,9 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img1.png" alt="Lumison Player" width="800">
+<img src="../images/img1.png" alt="Lumison Player" width="800">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img2.png" alt="Lyrics View" width="800">
+<img src="../images/img2.png" alt="Lyrics View" width="800">
 
 </div>
 
@@ -56,29 +50,19 @@
 
 ## 🚀 Quick Start
 
-### Web Version
+### Local Web Preview
 
-1. Visit [Lumison Web Demo](https://salixfrost.github.io/lumison/)
-2. Click the cloud icon or drag & drop audio files
-3. Optionally import matching `.lrc` / `.txt` lyric files with your audio
+```bash
+npm install
+npm run dev
+```
 
 ### Desktop App
 
-Download the latest release from [GitHub Releases](https://github.com/SalixJFrost/Lumison/releases)
-
-**Build from Source:**
-
 ```bash
-# Clone and install
-git clone https://github.com/SalixJFrost/Lumison.git
-cd Lumison
 npm install
-
-# Build desktop app
-npm run tauri:build
-
-# Start development
 npm run tauri:dev
+npm run tauri:build
 ```
 
 ---
@@ -191,10 +175,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-
-**[Download](https://github.com/SalixJFrost/Lumison/releases)** •
-**[Live Demo](https://salixfrost.github.io/lumison/)** •
-**[Report Issues](https://github.com/SalixJFrost/Lumison/issues)**
 
 Made with ❤️ using React + Tauri
 

@@ -31,20 +31,6 @@ if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
   document.documentElement.classList.add('high-performance-mode');
 }
 
-// 3. Preconnect to external resources
-const preconnectDomains = [
-  'https://music.163.com',
-  'https://api.github.com',
-];
-
-preconnectDomains.forEach(domain => {
-  const link = document.createElement('link');
-  link.rel = 'preconnect';
-  link.href = domain;
-  link.crossOrigin = 'anonymous';
-  document.head.appendChild(link);
-});
-
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error("Could not find root element to mount to");

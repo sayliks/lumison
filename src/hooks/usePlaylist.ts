@@ -3,7 +3,11 @@ import { Song, PlayMode } from "../types";
 import { LyricLine } from "../services/lyrics/types";
 import { extractCoverData } from "../services/utils";
 import { audioResourceCache } from "../services/cache";
-import { extractAudioTagData } from "../services/lyrics/id3Parser";
+import {
+  extractAudioTagData,
+  findMatchingLRCFile,
+  loadLRCFile,
+} from "../services/lyrics/id3Parser";
 import {
   saveQueueToPersistence,
   loadQueueFromPersistence,
@@ -87,14 +91,17 @@ export const usePlaylist = () => {
       const fileList =
         files instanceof FileList ? Array.from(files) : Array.from(files);
 
-      // Automatic lyrics matching only reads lyrics embedded in local audio files.
       const audioFiles: File[] = [];
+      const lyricsFiles: File[] = [];
 
       fileList.forEach((file) => {
         const ext = file.name.split(".").pop()?.toLowerCase();
-        if (ext !== "lrc" && ext !== "txt") {
-          audioFiles.push(file);
+        if (ext === "lrc" || ext === "txt") {
+          lyricsFiles.push(file);
+          return;
         }
+
+        audioFiles.push(file);
       });
 
       const newSongs: Song[] = [];
@@ -107,7 +114,8 @@ export const usePlaylist = () => {
         let artist = "Unknown Artist";
         let coverUrl: string | undefined;
         let blurhash: string | null | undefined;
-        let embeddedLyrics: { time: number; text: string }[] = [];
+        let embeddedLyrics: LyricLine[] = [];
+        let sidecarLyrics: LyricLine[] = [];
 
         const nameParts = title.split("-");
         if (nameParts.length > 1) {
@@ -116,7 +124,10 @@ export const usePlaylist = () => {
         }
 
         try {
-          const tagData = await extractAudioTagData(file);
+          const [tagData, matchingLyricsFile] = await Promise.all([
+            extractAudioTagData(file),
+            Promise.resolve(findMatchingLRCFile(file, lyricsFiles)),
+          ]);
 
           // 处理元数据
           if (tagData.title) title = tagData.title;
@@ -127,24 +138,37 @@ export const usePlaylist = () => {
             blurhash = coverData.blurhash;
           }
 
-          // 处理内嵌歌词
           if (tagData.lyrics.length > 0) {
             embeddedLyrics = tagData.lyrics;
             console.log(`✓ Found ${tagData.source} embedded lyrics for: ${title}`);
           }
 
-          // Determine initial lyrics from embedded local file tags only.
+          if (matchingLyricsFile) {
+            sidecarLyrics = await loadLRCFile(matchingLyricsFile);
+            if (sidecarLyrics.length > 0) {
+              console.log(`✓ Found local lyrics file for: ${title}`);
+            }
+          }
+
           let initialLyrics: LyricLine[] = [];
 
           if (embeddedLyrics.length > 0) {
             initialLyrics = embeddedLyrics;
             console.log(`Using embedded lyrics for: ${title}`);
+          } else if (sidecarLyrics.length > 0) {
+            initialLyrics = sidecarLyrics;
+            console.log(`Using local lyrics file for: ${title}`);
           } else {
             initialLyrics = [];
-            console.log(`No embedded lyrics found for: ${title}`);
+            console.log(`No local lyrics found for: ${title}`);
           }
 
-          const localLyrics = embeddedLyrics.length > 0 ? embeddedLyrics : undefined;
+          const localLyrics =
+            embeddedLyrics.length > 0
+              ? embeddedLyrics
+              : sidecarLyrics.length > 0
+                ? sidecarLyrics
+                : undefined;
 
           return {
             id: `local-${file.name}-${file.size}-${file.lastModified}`,

@@ -1,17 +1,11 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/public/icon.svg" alt="Lumison Logo" width="120">
+<img src="../public/icon.svg" alt="Lumison Logo" width="120">
 
 # Lumison
 
 **没入感のあるミニマリスト音楽プレーヤー**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tauri](https://img.shields.io/badge/Tauri-2.0-blue.svg)](https://tauri.app/)
-[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF.svg)](https://vite.dev/)
-
-[デモ](https://salixfrost.github.io/lumison/) • [ダウンロード](https://github.com/SalixJFrost/Lumison/releases) • [問題報告](https://github.com/SalixJFrost/Lumison/issues)
+インポートした音声ファイルとローカル歌詞のためのローカル優先デスクトッププレーヤー。
 
 </div>
 
@@ -38,7 +32,7 @@
 - **クロスプラットフォーム**: Windows、macOS、Linux
 - **キーボードショートカット**: 完全なホットキーサポート
 - **マルチウィンドウ**: マルチスクリーン対応
-- **システム統合**: メディアセッションAPI、自動更新
+- **システム統合**: メディアセッションAPIとネイティブデスクトップウィンドウ
 
 ---
 
@@ -46,9 +40,9 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img1.png" alt="Lumison プレーヤー" width="800">
+<img src="../images/img1.png" alt="Lumison プレーヤー" width="800">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img2.png" alt="歌詞ビュー" width="800">
+<img src="../images/img2.png" alt="歌詞ビュー" width="800">
 
 </div>
 
@@ -56,29 +50,19 @@
 
 ## 🚀 クイックスタート
 
-### Webバージョン
+### ローカルWebプレビュー
 
-1. [Lumison Webデモ](https://salixfrost.github.io/lumison/) にアクセス
-2. クラウドアイコンをクリックまたはオーディオファイルをドラッグ＆ドロップ
-3. 必要に応じて一致する `.lrc` / `.txt` 歌詞ファイルもインポート
+```bash
+npm install
+npm run dev
+```
 
 ### デスクトップアプリ
 
-[GitHub Releases](https://github.com/SalixJFrost/Lumison/releases) から最新バージョンをダウンロード
-
-**ソースからビルド:**
-
 ```bash
-# クローンとインストール
-git clone https://github.com/SalixJFrost/Lumison.git
-cd Lumison
 npm install
-
-# デスクトップアプリをビルド
-npm run tauri:build
-
-# 開発モードで起動
 npm run tauri:dev
+npm run tauri:build
 ```
 
 ---
@@ -191,10 +175,6 @@ MIT License - 詳細は [LICENSE](LICENSE) をご覧ください。
 ---
 
 <div align="center">
-
-**[ダウンロード](https://github.com/SalixJFrost/Lumison/releases)** •
-**[デモ](https://salixfrost.github.io/lumison/)** •
-**[問題報告](https://github.com/SalixJFrost/Lumison/issues)**
 
 ❤️ で製作、React + Tauri 使用
 

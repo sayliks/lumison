@@ -1,6 +1,6 @@
 import path from 'path';
 import { defineConfig } from 'vitest/config';
-import { loadEnv, type Plugin } from 'vite';
+import { type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import fs from 'fs';
 
@@ -36,14 +36,13 @@ function manifestPlugin(base: string): Plugin {
         }) ?? [];
 
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-        console.log('✓ Updated manifest.json for GitHub Pages');
+        console.log('✓ Updated manifest.json for static build');
       }
     }
   };
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, __dirname, '');
   const isTauri = process.env.TAURI_ENV_PLATFORM !== undefined;
   const base = isTauri ? '/' : './';
 
@@ -60,8 +59,6 @@ export default defineConfig(({ mode }) => {
 
     define: {
       '__TAURI__': isTauri,
-      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },
 
     resolve: {
@@ -102,10 +99,6 @@ export default defineConfig(({ mode }) => {
 
             if (id.includes('@tauri-apps')) {
               return 'tauri-vendor';
-            }
-
-            if (id.includes('@google/genai')) {
-              return 'ai-vendor';
             }
 
             if (id.includes('@react-spring')) {

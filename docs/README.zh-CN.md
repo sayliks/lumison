@@ -1,17 +1,11 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/public/icon.svg" alt="Lumison Logo" width="120">
+<img src="../public/icon.svg" alt="Lumison Logo" width="120">
 
 # Lumison
 
 **一款极简的沉浸式音乐播放器**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tauri](https://img.shields.io/badge/Tauri-2.0-blue.svg)](https://tauri.app/)
-[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF.svg)](https://vite.dev/)
-
-[在线体验](https://salixfrost.github.io/lumison/) • [下载应用](https://github.com/SalixJFrost/Lumison/releases) • [报告问题](https://github.com/SalixJFrost/Lumison/issues)
+本地优先的桌面播放器，面向导入音频文件与本地歌词。
 
 </div>
 
@@ -38,7 +32,7 @@
 - **跨平台**: Windows、macOS、Linux
 - **键盘快捷键**: 完整的快捷键支持
 - **多窗口支持**: 多屏幕扩展
-- **系统集成**: 媒体会话 API、自动更新
+- **系统集成**: 媒体会话 API 与原生桌面窗口
 
 ---
 
@@ -46,9 +40,9 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img1.png" alt="Lumison 播放器" width="800">
+<img src="../images/img1.png" alt="Lumison 播放器" width="800">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img2.png" alt="歌词视图" width="800">
+<img src="../images/img2.png" alt="歌词视图" width="800">
 
 </div>
 
@@ -56,29 +50,19 @@
 
 ## 🚀 快速开始
 
-### 网页版
+### 本地网页预览
 
-1. 访问 [Lumison 网页版](https://salixfrost.github.io/lumison/)
-2. 点击云图标或拖拽音频文件
-3. 可同时导入匹配的 `.lrc` / `.txt` 歌词文件
+```bash
+npm install
+npm run dev
+```
 
 ### 桌面应用
 
-从 [GitHub Releases](https://github.com/SalixJFrost/Lumison/releases) 下载最新版本
-
-**从源码构建:**
-
 ```bash
-# 克隆并安装
-git clone https://github.com/SalixJFrost/Lumison.git
-cd Lumison
 npm install
-
-# 构建桌面应用
-npm run tauri:build
-
-# 启动开发模式
 npm run tauri:dev
+npm run tauri:build
 ```
 
 ---
@@ -190,10 +174,6 @@ MIT License - 详情请查看 [LICENSE](LICENSE)。
 ---
 
 <div align="center">
-
-**[下载应用](https://github.com/SalixJFrost/Lumison/releases)** •
-**[在线体验](https://salixfrost.github.io/lumison/)** •
-**[报告问题](https://github.com/SalixJFrost/Lumison/issues)**
 
 用 ❤️ 制作，基于 React + Tauri
 

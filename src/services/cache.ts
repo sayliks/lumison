@@ -163,6 +163,10 @@ export { imageResourceCache };
 export const audioResourceCache = createSizeLimitedLRU(AUDIO_CACHE_LIMIT);
 
 export const fetchImageBlobWithCache = async (url: string): Promise<Blob> => {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    throw new Error("Remote image fetching is disabled in local-only mode");
+  }
+
   const cached = rawImageCache.get(url);
   if (cached) {
     return cached;

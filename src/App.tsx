@@ -29,6 +29,8 @@ const LazyPlaylistPanel = lazy(importPlaylistPanel);
 const LazyAlbumMode = lazy(importAlbumMode);
 
 const LOCAL_FILE_ACCEPT = "audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm,.lrc,.txt";
+const isLocalPlaybackUrl = (url?: string | null) =>
+  Boolean(url && (url.startsWith("blob:") || url.startsWith("data:") || url.startsWith("file:")));
 
 const App: React.FC = () => {
   const { t } = useI18n();
@@ -488,11 +490,17 @@ const App: React.FC = () => {
     return <Onboarding onComplete={() => setHasSeenOnboarding(true)} />;
   }
 
+  const audioSrc = isLocalPlaybackUrl(resolvedAudioSrc)
+    ? resolvedAudioSrc
+    : isLocalPlaybackUrl(currentSong?.fileUrl)
+      ? currentSong?.fileUrl
+      : undefined;
+
   return (
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-black theme-transition">
       <audio
         ref={audioRef}
-        src={resolvedAudioSrc && resolvedAudioSrc.trim() ? resolvedAudioSrc : (currentSong?.fileUrl && currentSong.fileUrl.trim() ? currentSong.fileUrl : undefined)}
+        src={audioSrc}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleAudioEnded}

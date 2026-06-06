@@ -3,7 +3,6 @@
  *
  * This module provides tokenization and parsing utilities for:
  * - Standard LRC format with word-level timing
- * - Netease YRC format with word-level timing
  */
 
 import { LyricLine, LyricWord } from "./types";

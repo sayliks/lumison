@@ -112,7 +112,7 @@ export const PERFORMANCE_CONFIG = {
   audio: {
     // Preload strategy: 'none', 'metadata', 'auto'
     preload: 'metadata',
-    // Buffer size for audio streaming (in seconds)
+    // Buffer size for local audio playback (in seconds)
     bufferSize: 10,
     // Enable audio worklet for better performance
     useAudioWorklet: true,

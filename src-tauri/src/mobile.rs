@@ -14,6 +14,5 @@ pub fn run() {
 
 fn setup_mobile(_app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
     // Mobile-specific setup code
-    // Note: updater plugin is not available on mobile
     Ok(())
 }
