@@ -28,7 +28,11 @@ async function fetchWithConcurrency<T, R>(
         const batchResults = await Promise.all(
             batch.map(item => processor(item))
         );
-        results.push(...batchResults.filter((r): r is R => r !== null));
+        for (const result of batchResults) {
+            if (result !== null) {
+                results.push(result);
+            }
+        }
     }
 
     return results;

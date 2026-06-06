@@ -235,17 +235,8 @@ const SmartImage: React.FC<SmartImageProps> = ({
     }
 
     let canceled = false;
-    const cachedBlob = imageResourceCache.get(effectiveKey);
-    if (cachedBlob) {
-      const cachedUrl = URL.createObjectURL(cachedBlob);
-      setFinalUrl(cachedUrl, true);
-      return () => {
-        canceled = true;
-        URL.revokeObjectURL(cachedUrl);
-      };
-    }
-
-    const imageElement = new Image();
+    let cachedUrl: string | null = null;
+    let imageElement: HTMLImageElement | null = null;
 
     const handleFallback = () => {
       if (canceled) return;
@@ -253,7 +244,7 @@ const SmartImage: React.FC<SmartImageProps> = ({
     };
 
     const loadImage = () => {
-      if (canceled) return;
+      if (canceled || !imageElement) return;
       const ratio = Math.min(
         normalizedSize.width / imageElement.naturalWidth,
         normalizedSize.height / imageElement.naturalHeight,
@@ -303,26 +294,44 @@ const SmartImage: React.FC<SmartImageProps> = ({
       }
     };
 
-    imageElement.crossOrigin = src.startsWith("blob:") || src.startsWith("data:") ? "" : "anonymous";
-    imageElement.onload = () => {
-      if (canceled) return;
-      if (!imageElement.naturalWidth || !imageElement.naturalHeight) {
+    const loadSourceImage = () => {
+      imageElement = new Image();
+      imageElement.crossOrigin = src.startsWith("blob:") || src.startsWith("data:") ? "" : "anonymous";
+      imageElement.onload = () => {
+        if (canceled || !imageElement) return;
+        if (!imageElement.naturalWidth || !imageElement.naturalHeight) {
+          handleFallback();
+          return;
+        }
+        loadImage();
+      };
+      imageElement.onerror = () => {
+        if (canceled) return;
         handleFallback();
+      };
+      imageElement.src = src;
+    };
+
+    void Promise.resolve(imageResourceCache.get(effectiveKey)).then((cachedBlob) => {
+      if (canceled) return;
+      if (cachedBlob) {
+        cachedUrl = URL.createObjectURL(cachedBlob);
+        setFinalUrl(cachedUrl, true);
         return;
       }
-      loadImage();
-    };
-    imageElement.onerror = () => {
-      if (canceled) return;
-      handleFallback();
-    };
-    imageElement.src = src;
+      loadSourceImage();
+    });
 
     return () => {
       canceled = true;
-      imageElement.onload = null;
-      imageElement.onerror = null;
-      imageElement.src = "";
+      if (cachedUrl) {
+        URL.revokeObjectURL(cachedUrl);
+      }
+      if (imageElement) {
+        imageElement.onload = null;
+        imageElement.onerror = null;
+        imageElement.src = "";
+      }
     };
   }, [effectiveKey, normalizedSize, resetDisplay, setFinalUrl, src, isVisible]);
 

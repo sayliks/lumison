@@ -37,7 +37,39 @@ export interface ArchiveMetadata {
   description?: string;
   audioFiles: ArchiveAudioFile[];
   coverImage?: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
+}
+
+interface ArchiveSearchDoc {
+  identifier: string;
+  title?: string | string[];
+  creator?: string | string[];
+  description?: string | string[];
+  date?: string;
+  subject?: string | string[];
+}
+
+interface ArchiveSearchResponse {
+  response?: {
+    docs?: ArchiveSearchDoc[];
+  };
+}
+
+interface ArchiveMetadataFile {
+  name: string;
+  format?: string;
+  size?: string | number;
+  length?: string | number;
+}
+
+interface ArchiveMetadataResponse {
+  files?: ArchiveMetadataFile[];
+  metadata?: {
+    title?: string | string[];
+    creator?: string | string[];
+    description?: string | string[];
+    [key: string]: unknown;
+  };
 }
 
 /**
@@ -63,10 +95,10 @@ export async function searchArchive(options: ArchiveSearchOptions): Promise<Arch
   searchUrl.searchParams.set('page', page.toString());
   searchUrl.searchParams.set('output', 'json');
 
-  const data = await fetchViaProxy(searchUrl.toString());
+  const data = await fetchViaProxy<ArchiveSearchResponse>(searchUrl.toString());
   const docs = data.response?.docs || [];
 
-  return docs.map((doc: any) => ({
+  return docs.map((doc) => ({
     identifier: doc.identifier,
     title: Array.isArray(doc.title) ? doc.title[0] : doc.title,
     creator: Array.isArray(doc.creator) ? doc.creator[0] : doc.creator,
@@ -82,7 +114,7 @@ export async function searchArchive(options: ArchiveSearchOptions): Promise<Arch
 export async function fetchArchiveMetadata(identifier: string): Promise<ArchiveMetadata | null> {
   try {
     const metadataUrl = `https://archive.org/metadata/${identifier}`;
-    const data = await fetchViaProxy(metadataUrl);
+    const data = await fetchViaProxy<ArchiveMetadataResponse>(metadataUrl);
 
     if (!data.files) {
       return null;
@@ -90,24 +122,24 @@ export async function fetchArchiveMetadata(identifier: string): Promise<ArchiveM
 
     // Extract audio files
     const audioFiles: ArchiveAudioFile[] = data.files
-      .filter((file: any) =>
+      .filter((file) =>
         file.format === 'VBR MP3' ||
         file.format === 'MP3' ||
         file.format === '128Kbps MP3' ||
         file.format === 'Ogg Vorbis' ||
         file.format === 'FLAC'
       )
-      .map((file: any) => ({
+      .map((file) => ({
         name: file.name,
-        format: file.format,
-        size: parseInt(file.size) || 0,
-        length: file.length ? parseFloat(file.length) : undefined,
+        format: file.format || "",
+        size: Number(file.size) || 0,
+        length: file.length ? Number(file.length) : undefined,
         url: `https://archive.org/download/${identifier}/${encodeURIComponent(file.name)}`
       }));
 
     // Find cover image
     let coverImage: string | undefined;
-    const imageFile = data.files.find((file: any) =>
+    const imageFile = data.files.find((file) =>
       file.format === 'JPEG' ||
       file.format === 'PNG' ||
       file.name.includes('thumb') ||

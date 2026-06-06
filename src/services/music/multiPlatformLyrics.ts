@@ -1,4 +1,4 @@
-import { fetchJSON, fetchViaProxy } from "../request";
+import { fetchViaProxy } from "../request";
 import { fetchNeteaseWithFallback } from "./neteaseRequest";
 
 /**
@@ -54,6 +54,64 @@ interface LyricsResult {
 interface MusixmatchSubtitleLine {
   time?: { total?: number };
   text?: string;
+}
+
+interface NeteaseSearchSong {
+  id?: number;
+  al?: { picUrl?: string };
+}
+
+interface NeteaseSearchResponse {
+  result?: {
+    songs?: NeteaseSearchSong[];
+  };
+}
+
+interface NeteaseLyricResponse {
+  lrc?: { lyric?: string };
+  yrc?: { lyric?: string };
+  tlyric?: { lyric?: string };
+}
+
+interface LrcLibResponseItem {
+  syncedLyrics?: string;
+  plainLyrics?: string;
+}
+
+interface LrcApiSearchResponse {
+  data?: Array<{ lrc?: string }>;
+}
+
+interface PlainLyricsResponse {
+  lyrics?: string;
+}
+
+interface MusixmatchResponse {
+  message?: {
+    body?: {
+      macro_calls?: {
+        "track.subtitles.get"?: {
+          message?: {
+            body?: {
+              subtitle_list?: Array<{
+                subtitle?: {
+                  subtitle_body?: string;
+                };
+              }>;
+            };
+          };
+        };
+      };
+    };
+  };
+}
+
+interface OpenLyricsResponse {
+  results?: Array<{
+    lrc?: string;
+    lyrics?: string;
+    metadata?: string[];
+  }>;
 }
 
 const toSimpleTimedLrc = (plainLyrics: string): string => {
@@ -117,9 +175,9 @@ const fetchLyricsViaMeting = async (songId: string): Promise<LyricsResult | null
 /**
  * Search Netease using the centralized request handler.
  */
-const searchNeteaseMusic = async (keyword: string): Promise<any> => {
+const searchNeteaseMusic = async (keyword: string): Promise<NeteaseSearchSong | null> => {
   try {
-    const response = await fetchNeteaseWithFallback(
+    const response = await fetchNeteaseWithFallback<NeteaseSearchResponse>(
       `/cloudsearch?keywords=${encodeURIComponent(keyword)}&limit=5`
     );
     return response?.result?.songs?.[0];
@@ -143,7 +201,7 @@ const fetchNeteaseMusicLyrics = async (songId: string, coverUrl?: string): Promi
 
   // Fallback to standard Netease endpoint
   try {
-    const response = await fetchNeteaseWithFallback(`/lyric/new?id=${songId}`);
+    const response = await fetchNeteaseWithFallback<NeteaseLyricResponse>(`/lyric/new?id=${songId}`);
     if (!response?.lrc?.lyric) return null;
     return {
       lrc: response.lrc.lyric,
@@ -171,7 +229,7 @@ const searchThirdPartyLyricsAPIs = async (title: string, artist: string): Promis
     if (isSourceBlacklisted('lrclib')) return null;
     try {
       const url = `https://lrclib.net/api/search?track_name=${encodeURIComponent(title)}&artist_name=${encodeURIComponent(artist)}`;
-      const response = await fetchViaProxy(url);
+      const response = await fetchViaProxy<LrcLibResponseItem[]>(url);
       if (Array.isArray(response) && response.length > 0) {
         const result = response[0];
         const lrc = result.syncedLyrics || result.plainLyrics;
@@ -196,7 +254,7 @@ const searchThirdPartyLyricsAPIs = async (title: string, artist: string): Promis
     if (isSourceBlacklisted('lrcapi')) return null;
     try {
       const url = `https://lrc.xms.mx/search?title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
-      const response = await fetchViaProxy(url);
+      const response = await fetchViaProxy<LrcApiSearchResponse>(url);
       if (response?.data && Array.isArray(response.data) && response.data.length > 0) {
         const result = response.data[0];
         if (result.lrc) {
@@ -221,7 +279,7 @@ const searchThirdPartyLyricsAPIs = async (title: string, artist: string): Promis
     try {
       // 修复：正确的参数顺序是 artist/title
       const url = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
-      const response = await fetchViaProxy(url);
+      const response = await fetchViaProxy<PlainLyricsResponse>(url);
       if (response && response.lyrics) {
         const lrc = toSimpleTimedLrc(response.lyrics);
         return {
@@ -243,7 +301,7 @@ const searchThirdPartyLyricsAPIs = async (title: string, artist: string): Promis
     if (isSourceBlacklisted('syair.info')) return null;
     try {
       const url = `https://api.syair.info/lyrics/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
-      const response = await fetchViaProxy(url);
+      const response = await fetchViaProxy<PlainLyricsResponse>(url);
       if (response && response.lyrics) {
         const lrc = toSimpleTimedLrc(response.lyrics);
         return {
@@ -265,7 +323,7 @@ const searchThirdPartyLyricsAPIs = async (title: string, artist: string): Promis
     if (isSourceBlacklisted('chartlyrics')) return null;
     try {
       const url = `https://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?artist=${encodeURIComponent(artist)}&song=${encodeURIComponent(title)}`;
-      const response = await fetchViaProxy(url);
+      const response = await fetchViaProxy<string>(url);
       if (response && typeof response === 'string' && response.includes('<Lyric>')) {
         const lyricMatch = response.match(/<Lyric>([\s\S]*?)<\/Lyric>/);
         if (lyricMatch && lyricMatch[1]) {
@@ -293,7 +351,7 @@ const searchThirdPartyLyricsAPIs = async (title: string, artist: string): Promis
     if (isSourceBlacklisted('musixmatch')) return null;
     try {
       const url = `https://apic-desktop.musixmatch.com/ws/1.1/macro.subtitles.get?q_track=${encodeURIComponent(title)}&q_artist=${encodeURIComponent(artist)}&format=json&namespace=lyrics_synched`;
-      const response = await fetchViaProxy(url);
+      const response = await fetchViaProxy<MusixmatchResponse>(url);
 
       const subtitles = response?.message?.body?.macro_calls?.['track.subtitles.get']?.message?.body?.subtitle_list;
       if (!Array.isArray(subtitles) || subtitles.length === 0) {
@@ -336,7 +394,7 @@ const searchThirdPartyLyricsAPIs = async (title: string, artist: string): Promis
       for (const mirror of mirrors) {
         try {
           const url = `${mirror}?q=${encodeURIComponent(searchQuery)}`;
-          const response = await fetchViaProxy(url);
+          const response = await fetchViaProxy<OpenLyricsResponse>(url);
 
           if (response?.results && Array.isArray(response.results) && response.results.length > 0) {
             const result = response.results[0];
@@ -369,7 +427,7 @@ const searchThirdPartyLyricsAPIs = async (title: string, artist: string): Promis
       const response = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!response.ok) return null;
 
-      const data = await response.json();
+      const data = await response.json() as PlainLyricsResponse;
       if (data?.lyrics) {
         return {
           lrc: data.lyrics,

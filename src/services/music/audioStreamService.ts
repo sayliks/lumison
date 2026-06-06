@@ -20,6 +20,21 @@ interface AudioStreamError {
   message: string;
 }
 
+interface InternetArchiveFile {
+  name: string;
+  format?: string;
+  length?: string;
+}
+
+interface InternetArchiveMetadataResponse {
+  files?: InternetArchiveFile[];
+  metadata?: {
+    title?: string | string[];
+    creator?: string | string[];
+    artist?: string | string[];
+  };
+}
+
 /**
  * Parse Internet Archive URL
  * Supports: https://archive.org/details/[identifier]
@@ -47,14 +62,14 @@ const fetchInternetArchiveAudio = async (
 ): Promise<AudioStreamTrackInfo | null> => {
   try {
     const metadataUrl = `https://archive.org/metadata/${identifier}`;
-    const data = await fetchViaProxy(metadataUrl);
+    const data = await fetchViaProxy<InternetArchiveMetadataResponse>(metadataUrl);
 
     if (!data.files) {
       return null;
     }
 
     // Find audio file (prefer MP3, then OGG, then other formats)
-    const audioFile = data.files.find((file: any) =>
+    const audioFile = data.files.find((file) =>
       file.format === 'VBR MP3' ||
       file.format === 'MP3' ||
       file.format === 'Ogg Vorbis' ||
@@ -71,7 +86,7 @@ const fetchInternetArchiveAudio = async (
 
     // Get cover image
     let coverUrl: string | undefined;
-    const imageFile = data.files.find((file: any) =>
+    const imageFile = data.files.find((file) =>
       file.format === 'JPEG' ||
       file.format === 'PNG' ||
       file.name.includes('thumb')

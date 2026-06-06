@@ -1,4 +1,3 @@
-/// <reference types="vite/client" />
 import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { InfoIcon, FullscreenIcon, SettingsIcon, MinimizeIcon, CloseIcon } from "../common/Icons";
 import AboutDialog from "../modals/AboutDialog";
@@ -110,8 +109,6 @@ const TopBar: React.FC<TopBarProps> = ({
       // Silently handle errors in development (hot reload)
       if (import.meta.env.DEV) {
         console.debug('Window minimize failed (likely hot reload):', error);
-      } else if (window.electronAPI?.minimize) {
-        window.electronAPI.minimize();
       }
     }
   }, []);
@@ -124,8 +121,6 @@ const TopBar: React.FC<TopBarProps> = ({
       // Silently handle errors in development (hot reload)
       if (import.meta.env.DEV) {
         console.debug('Window close failed (likely hot reload):', error);
-      } else if (window.electronAPI?.close) {
-        window.electronAPI.close();
       } else {
         window.close();
       }

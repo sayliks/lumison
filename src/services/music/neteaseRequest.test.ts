@@ -4,8 +4,6 @@ vi.mock("../utils", () => ({
   fetchViaProxy: vi.fn(),
 }));
 
-vi.mocked = vi.fn;
-
 import { fetchNeteaseWithFallback } from "./neteaseRequest";
 
 describe("fetchNeteaseWithFallback", () => {

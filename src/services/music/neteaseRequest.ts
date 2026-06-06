@@ -20,16 +20,16 @@ export interface NeteaseRequestConfig {
   retries?: number;
 }
 
-export const fetchDirect = async (url: string, signal?: AbortSignal): Promise<unknown> => {
+export const fetchDirect = async <T = unknown>(url: string, signal?: AbortSignal): Promise<T> => {
   const res = await fetch(url, { signal });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 };
 
-export const fetchViaProxies = async (
+export const fetchViaProxies = async <T = unknown>(
   url: string,
   signal?: AbortSignal
-): Promise<unknown> => {
+): Promise<T> => {
   for (const makeProxy of CORS_PROXIES) {
     try {
       const res = await fetch(makeProxy(url), { signal });
@@ -40,15 +40,15 @@ export const fetchViaProxies = async (
   throw new Error("All proxies failed");
 };
 
-export async function fetchNeteaseWithFallback(
+export async function fetchNeteaseWithFallback<T = unknown>(
   endpoint: string,
   config: NeteaseRequestConfig = {},
-): Promise<unknown> {
+): Promise<T> {
   const { timeout = 5000, retries = 0 } = config;
 
   const tryEndpoint = async (baseUrl: string) => {
     const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
-    const fetcher = CORS_SUPPORTED.has(baseUrl) ? fetchDirect : fetchViaProxies;
+    const fetcher = CORS_SUPPORTED.has(baseUrl) ? fetchDirect<T> : fetchViaProxies<T>;
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);

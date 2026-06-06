@@ -38,6 +38,14 @@ interface NeteaseApiSong {
   dt?: number;
 }
 
+interface NeteaseLyricResponse {
+  yrc?: { lyric?: string };
+  lrc?: { lyric?: string };
+  tlyric?: { lyric?: string };
+  transUser?: { nickname?: string };
+  lyricUser?: { nickname?: string };
+}
+
 export interface NeteaseTrackInfo {
   id: string;
   title: string;
@@ -288,7 +296,7 @@ export const fetchLyricsById = async (
   try {
     // Fallback: standard Netease endpoint
     const lyricUrl = `/lyric/new?id=${songId}`;
-    const lyricData = await fetchWithFallback(lyricUrl);
+    const lyricData = await fetchWithFallback<NeteaseLyricResponse>(lyricUrl);
 
     const rawYrc = lyricData.yrc?.lyric;
     const rawLrc = lyricData.lrc?.lyric;

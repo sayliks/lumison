@@ -387,14 +387,15 @@ const SearchModal: React.FC<SearchModalProps> = ({
       const result = await getAlbumDetail(album.id);
       const firstSong = result.songs[0];
       if (firstSong) {
+        const songId = firstSong.id.toString();
         const song: Song = {
-          id: firstSong.id,
+          id: songId,
           title: firstSong.name,
           artist: firstSong.artists.map(a => a.name).join(", "),
           coverUrl: album.picUrl?.replace("http:", "https:"),
-          fileUrl: getNeteaseAudioUrl(firstSong.id),
+          fileUrl: getNeteaseAudioUrl(songId),
           isNetease: true,
-          neteaseId: firstSong.id.toString(),
+          neteaseId: songId,
           album: album.name,
           lyrics: [],
           needsLyricsMatch: true,
@@ -409,14 +410,15 @@ const SearchModal: React.FC<SearchModalProps> = ({
   const handleLanguageSelection = (idx: number) => {
     const track = search.languageResults[idx];
     if (track) {
+      const songId = track.id.toString();
       const song: Song = {
-        id: track.id,
+        id: songId,
         title: track.name,
         artist: track.artists?.map(a => a.name).join(", ") || "",
         coverUrl: track.album?.picUrl?.replace("http:", "https:"),
-        fileUrl: getNeteaseAudioUrl(track.id),
+        fileUrl: getNeteaseAudioUrl(songId),
         isNetease: true,
-        neteaseId: track.id.toString(),
+        neteaseId: songId,
         album: track.album?.name,
         lyrics: [],
         needsLyricsMatch: true,
@@ -917,7 +919,7 @@ const SearchModal: React.FC<SearchModalProps> = ({
                             <SmartImage
                               src={album.picUrl?.replace("http:", "https:")}
                               alt={album.name}
-                              className="w-full h-full object-cover"
+                              imgClassName="w-full h-full object-cover"
                             />
                           </div>
                           <div className="flex-1 min-w-0">

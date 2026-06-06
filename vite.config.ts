@@ -1,7 +1,19 @@
 import path from 'path';
-import { defineConfig, loadEnv, Plugin } from 'vite';
+import { defineConfig } from 'vitest/config';
+import { loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import fs from 'fs';
+
+interface WebManifestIcon {
+  src: string;
+  [key: string]: unknown;
+}
+
+interface WebManifest {
+  start_url?: string;
+  icons?: WebManifestIcon[];
+  [key: string]: unknown;
+}
 
 function manifestPlugin(base: string): Plugin {
   return {
@@ -12,16 +24,16 @@ function manifestPlugin(base: string): Plugin {
 
       const manifestPath = path.resolve(__dirname, 'dist/manifest.json');
       if (fs.existsSync(manifestPath)) {
-        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as WebManifest;
 
         manifest.start_url = base;
-        manifest.icons = manifest.icons.map((icon: any) => {
+        manifest.icons = manifest.icons?.map((icon) => {
           const iconSrc = icon.src.startsWith('/') ? icon.src.slice(1) : icon.src;
           return {
             ...icon,
             src: base + iconSrc
           };
-        });
+        }) ?? [];
 
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
         console.log('✓ Updated manifest.json for GitHub Pages');
@@ -61,6 +73,16 @@ export default defineConfig(({ mode }) => {
 
     optimizeDeps: {
       exclude: ['jsmediatags'],
+    },
+
+    test: {
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/.claude/**',
+        '**/src-tauri/target/**',
+        '**/src-tauri/gen/**',
+      ],
     },
 
     build: {

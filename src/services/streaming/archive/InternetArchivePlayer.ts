@@ -13,6 +13,28 @@ import {
   StreamingPlatform
 } from '../types';
 
+interface ArchiveSearchDoc {
+  identifier: string;
+  title?: string | string[];
+  creator?: string | string[];
+}
+
+interface ArchiveSearchResponse {
+  response?: {
+    docs?: ArchiveSearchDoc[];
+  };
+}
+
+interface ArchiveMetadataFile {
+  name: string;
+  format?: string;
+  length?: string | number;
+}
+
+interface ArchiveMetadataResponse {
+  files?: ArchiveMetadataFile[];
+}
+
 export class InternetArchivePlayer implements IStreamingPlayer {
   private audioElement: HTMLAudioElement | null = null;
   private currentTrack: StreamingTrack | null = null;
@@ -141,12 +163,12 @@ export class InternetArchivePlayer implements IStreamingPlayer {
     searchUrl.searchParams.set('page', '1');
     searchUrl.searchParams.set('output', 'json');
 
-    const data = await fetchViaProxy(searchUrl.toString());
+    const data = await fetchViaProxy<ArchiveSearchResponse>(searchUrl.toString());
     const docs = data.response?.docs || [];
 
     // Fetch metadata for each result to get audio URLs and cover images
     const tracks = await Promise.all(
-      docs.map(async (doc: any) => {
+      docs.map(async (doc) => {
         const metadata = await this.fetchMetadata(doc.identifier);
         
         return {
@@ -175,14 +197,14 @@ export class InternetArchivePlayer implements IStreamingPlayer {
   } | null> {
     try {
       const metadataUrl = `https://archive.org/metadata/${identifier}`;
-      const data = await fetchViaProxy(metadataUrl);
+      const data = await fetchViaProxy<ArchiveMetadataResponse>(metadataUrl);
       
       if (!data.files) {
         return null;
       }
 
       // Find best audio file (prefer MP3, then OGG, then FLAC)
-      const audioFile = data.files.find((file: any) => 
+      const audioFile = data.files.find((file) => 
         file.format === 'VBR MP3' || 
         file.format === 'MP3' ||
         file.format === '128Kbps MP3' ||
@@ -196,7 +218,7 @@ export class InternetArchivePlayer implements IStreamingPlayer {
 
       // Get cover image
       let coverUrl: string | undefined;
-      const imageFile = data.files.find((file: any) => 
+      const imageFile = data.files.find((file) => 
         file.format === 'JPEG' || 
         file.format === 'PNG' ||
         file.name.includes('thumb') ||
@@ -213,7 +235,7 @@ export class InternetArchivePlayer implements IStreamingPlayer {
       return {
         audioUrl,
         coverUrl,
-        duration: audioFile.length ? parseFloat(audioFile.length) : undefined
+        duration: audioFile.length ? Number(audioFile.length) : undefined
       };
     } catch (error) {
       console.error('Failed to fetch Internet Archive metadata:', error);

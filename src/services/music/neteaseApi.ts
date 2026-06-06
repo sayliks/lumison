@@ -39,6 +39,40 @@ interface RawNeteaseTrack {
   mvid?: number;
 }
 
+interface RawNeteaseAlbum {
+  id: number;
+  name: string;
+  artists?: Array<{ id: number; name: string; picUrl?: string }>;
+  artist?: { id: number; name: string; picUrl?: string };
+  picUrl?: string;
+  publishTime?: number;
+  size?: number;
+}
+
+interface NeteaseSearchResponse {
+  result?: {
+    songs?: RawNeteaseTrack[];
+    songCount?: number;
+    albums?: RawNeteaseAlbum[];
+    albumCount?: number;
+  };
+}
+
+interface NeteaseAlbumDetailResponse {
+  album: RawNeteaseAlbum;
+  songs?: RawNeteaseTrack[];
+}
+
+interface NeteaseSongDetailResponse {
+  songs?: RawNeteaseTrack[];
+}
+
+interface NeteasePlaylistDetailResponse {
+  playlist?: NeteasePlaylist & {
+    tracks?: NeteaseTrack[];
+  };
+}
+
 const normalizePicUrl = (url: string | undefined): string => {
   if (!url) return "";
   return url.replace("http:", "https:").replace(/\?param=\d+y\d+$/, "") + "?param=500y500";
@@ -70,7 +104,7 @@ export async function searchSongs(
 ): Promise<{ songs: NeteaseTrack[]; songCount: number }> {
   const { limit = 30, offset = 0 } = options;
   const endpoint = `/cloudsearch?keywords=${encodeURIComponent(keyword)}&type=1&limit=${limit}&offset=${offset}`;
-  const data = await fetchWithFallback(endpoint, {
+  const data = await fetchWithFallback<NeteaseSearchResponse>(endpoint, {
     timeout: 5000,
     retries: 0,
     ...requestConfig,
@@ -107,7 +141,7 @@ export async function searchAlbums(
 ): Promise<{ albums: NeteaseAlbum[]; albumCount: number }> {
   const { limit = 30, offset = 0 } = options;
   const endpoint = `/cloudsearch?keywords=${encodeURIComponent(keyword)}&type=10&limit=${limit}&offset=${offset}`;
-  const data = await fetchWithFallback(endpoint, {
+  const data = await fetchWithFallback<NeteaseSearchResponse>(endpoint, {
     timeout: 5000,
     retries: 0,
     ...requestConfig,
@@ -115,17 +149,17 @@ export async function searchAlbums(
   
   const raw = data.result?.albums || [];
   return {
-    albums: raw.map((album: Record<string, unknown>) => ({
-      id: album.id as number,
-      name: album.name as string,
+    albums: raw.map((album) => ({
+      id: album.id,
+      name: album.name,
       artist: {
-        id: (album.artists as Array<{ id: number; name: string }>)?.[0]?.id ?? 0,
-        name: (album.artists as Array<{ id: number; name: string }>)?.[0]?.name ?? "",
-        picUrl: normalizePicUrl((album.artists as Array<{ id: number; name: string; picUrl?: string }>)?.[0]?.picUrl),
+        id: album.artists?.[0]?.id ?? album.artist?.id ?? 0,
+        name: album.artists?.[0]?.name ?? album.artist?.name ?? "",
+        picUrl: normalizePicUrl(album.artists?.[0]?.picUrl ?? album.artist?.picUrl),
       },
-      picUrl: normalizePicUrl(album.picUrl as string || ""),
-      publishTime: album.publishTime as number || 0,
-      size: album.size as number || 0,
+      picUrl: normalizePicUrl(album.picUrl || ""),
+      publishTime: album.publishTime || 0,
+      size: album.size || 0,
     })),
     albumCount: data.result?.albumCount || 0,
   };
@@ -139,7 +173,7 @@ export async function getAlbumDetail(id: number): Promise<{
   songs: NeteaseTrack[];
 }> {
   const endpoint = `/album?id=${id}`;
-  const data = await fetchWithFallback(endpoint);
+  const data = await fetchWithFallback<NeteaseAlbumDetailResponse>(endpoint);
   
   return {
     album: {
@@ -168,7 +202,7 @@ export async function searchByLanguage(
   const { limit = 30, offset = 0 } = options;
   // 使用 type=1000 (风格/语言) + 关键词搜索
   const endpoint = `/cloudsearch?keywords=${encodeURIComponent(language)}&type=1000&limit=${limit}&offset=${offset}`;
-  const data = await fetchWithFallback(endpoint, {
+  const data = await fetchWithFallback<NeteaseSearchResponse>(endpoint, {
     timeout: 5000,
     retries: 0,
     ...requestConfig,
@@ -190,7 +224,7 @@ export async function searchByLanguage(
 export async function getSongDetail(ids: number | number[]): Promise<NeteaseTrack[]> {
   const idStr = Array.isArray(ids) ? ids.join(',') : String(ids);
   const endpoint = `/song/detail?ids=${idStr}`;
-  const data = await fetchWithFallback(endpoint);
+  const data = await fetchWithFallback<NeteaseSongDetailResponse>(endpoint);
   const raw: RawNeteaseTrack[] = data.songs || [];
   return raw.map(normalizeTrack);
 }
@@ -217,14 +251,19 @@ export async function getPlaylistDetail(id: number): Promise<{
   tracks: NeteaseTrack[];
 }> {
   const endpoint = `/playlist/detail?id=${id}`;
-  const data = await fetchWithFallback(endpoint);
+  const data = await fetchWithFallback<NeteasePlaylistDetailResponse>(endpoint);
+  const playlist = data.playlist;
+
+  if (!playlist) {
+    throw new Error(`Netease playlist ${id} was not found`);
+  }
 
   return {
     playlist: {
-      ...data.playlist,
-      coverImgUrl: normalizePicUrl(data.playlist?.coverImgUrl),
+      ...playlist,
+      coverImgUrl: normalizePicUrl(playlist.coverImgUrl),
     },
-    tracks: data.playlist?.tracks || []
+    tracks: playlist.tracks || []
   };
 }
 

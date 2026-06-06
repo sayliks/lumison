@@ -26,11 +26,11 @@ export const shuffleArray = <T>(array: T[]): T[] => {
 // Track which base URLs have confirmed CORS support to skip the proxy on subsequent calls
 const corsWorkingCache = new Set<string>();
 
-export const fetchViaProxy = async (
+export const fetchViaProxy = async <T = unknown>(
   targetUrl: string,
   options?: { signal?: AbortSignal }
-): Promise<unknown> => {
-  const result = await fetchJSON(targetUrl, {
+): Promise<T> => {
+  const result = await fetchJSON<T>(targetUrl, {
     signal: options?.signal,
     timeout: 10000,
   });
