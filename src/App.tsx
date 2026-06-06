@@ -28,7 +28,7 @@ const importAlbumMode = () => import("./components/ui/AlbumMode");
 const LazyPlaylistPanel = lazy(importPlaylistPanel);
 const LazyAlbumMode = lazy(importAlbumMode);
 
-const LOCAL_FILE_ACCEPT = "audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm";
+const LOCAL_FILE_ACCEPT = "audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm,.lrc,.txt";
 
 const App: React.FC = () => {
   const { t } = useI18n();

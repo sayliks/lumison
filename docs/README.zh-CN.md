@@ -19,11 +19,10 @@
 
 ## ✨ 功能特性
 
-### 🎵 多源音乐
+### 🎵 本地音乐
 - **本地文件**: MP3、FLAC、WAV、OGG、M4A、AAC 等格式
-- **在线音乐搜索**: 搜索歌曲、专辑
-- **Internet Archive**: 访问存档音频收藏
-- **URL 导入**: 直接音频 URL 支持
+- **本地歌词**: 支持内嵌歌词以及匹配的 `.lrc` / `.txt` 歌词文件
+- **会话队列**: 从本地导入构建和编辑播放队列
 
 ### 🎨 视觉体验
 - **六种背景模式**: Gradient（渐变）、Fluid（流体）、Melt（融化）、Wave（波浪）、Halo（光环）、Swirl（漩涡）
@@ -61,7 +60,7 @@
 
 1. 访问 [Lumison 网页版](https://salixfrost.github.io/lumison/)
 2. 点击云图标或拖拽音频文件
-3. 按 `Cmd/Ctrl+K` 在线搜索
+3. 可同时导入匹配的 `.lrc` / `.txt` 歌词文件
 
 ### 桌面应用
 
@@ -95,7 +94,6 @@ npm run tauri:dev
 | `P` | 切换播放列表 |
 | `F` | 切换全屏 |
 | `L` | 切换歌词视图 |
-| `Cmd/Ctrl + K` | 打开搜索面板 |
 | `Esc` | 关闭对话框 |
 
 ---
@@ -133,16 +131,15 @@ lumison/
 ├── src/                    # 前端 (React)
 │   ├── components/         # UI 组件
 │   │   ├── common/         # 图标、SmartImage、Toast
-│   │   ├── layout/         # TopBar、ShaderBackground
-│   │   ├── modals/         # 搜索、导入、关于
+│   │   ├── navigation/     # 应用导航外壳
+│   │   ├── modals/         # 关于及共享对话框
 │   │   └── player/         # 控件、歌词、播放列表
 │   ├── hooks/              # 自定义 React Hooks
 │   ├── services/           # 业务逻辑
 │   │   ├── audio/          # 音频处理
 │   │   ├── cache/          # IndexedDB 缓存
 │   │   ├── lyrics/         # 歌词解析
-│   │   ├── music/          # 音乐搜索 API
-│   │   └── streaming/      # Internet Archive
+│   │   ├── music/          # 本地音乐辅助逻辑
 │   ├── contexts/           # React 上下文
 │   ├── i18n/               # 国际化
 │   └── utils/              # 工具函数
@@ -188,8 +185,7 @@ MIT License - 详情请查看 [LICENSE](LICENSE)。
 ## 🙏 致谢
 
 - 设计灵感来自 Apple Music
-- 音乐搜索 API 集成
-- 流媒体来自 [Internet Archive](https://archive.org/)
+- 本地文件播放与歌词解析
 
 ---
 

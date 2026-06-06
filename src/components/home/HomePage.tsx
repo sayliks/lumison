@@ -92,7 +92,7 @@ const HomePage: React.FC<HomePageProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm"
+        accept="audio/*,.mp3,.wav,.flac,.m4a,.aac,.ogg,.opus,.wma,.ape,.alac,.aiff,.webm,.lrc,.txt"
         multiple
         className="hidden"
         onChange={(event) => {

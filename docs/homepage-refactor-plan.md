@@ -1,8 +1,12 @@
 # Lumison Homepage and App Shell Refactor
 
-Status: Draft  
+Status: Superseded by local-only scope  
 Date: 2026-06-06  
 Owner: Lumison development
+
+## 2026-06-06 Scope Update
+
+Lumison is now local-import only. Online search, URL import, Netease/Kugou/Internet Archive discovery, and `Ctrl+K` search behavior are removed from the active product scope. Any older search/discovery references in this planning document should be treated as historical context, not implementation guidance.
 
 ## Purpose
 

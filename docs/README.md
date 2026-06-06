@@ -19,11 +19,10 @@
 
 ## ✨ Features
 
-### 🎵 Multi-Source Music
+### 🎵 Local Music
 - **Local Files**: MP3, FLAC, WAV, OGG, M4A, AAC, and more
-- **Online Music Search**: Search and import songs, albums
-- **Internet Archive**: Access archived audio collections
-- **URL Import**: Direct audio URL support
+- **Local Lyrics**: Import embedded lyrics or matching `.lrc` / `.txt` sidecar files
+- **Session Queue**: Build and edit a playback queue from local imports
 
 ### 🎨 Visual Experience
 - **Six Background Modes**: Gradient, Fluid, Melt, Wave, Halo, Swirl
@@ -61,7 +60,7 @@
 
 1. Visit [Lumison Web Demo](https://salixfrost.github.io/lumison/)
 2. Click the cloud icon or drag & drop audio files
-3. Press `Cmd/Ctrl+K` to search online
+3. Optionally import matching `.lrc` / `.txt` lyric files with your audio
 
 ### Desktop App
 
@@ -95,7 +94,6 @@ npm run tauri:dev
 | `P` | Toggle playlist |
 | `F` | Toggle fullscreen |
 | `L` | Toggle lyrics view |
-| `Cmd/Ctrl + K` | Open search panel |
 | `Esc` | Close dialogs |
 
 ---
@@ -133,16 +131,15 @@ lumison/
 ├── src/                    # Frontend (React)
 │   ├── components/         # UI components
 │   │   ├── common/         # Icons, SmartImage, Toast
-│   │   ├── layout/         # TopBar, ShaderBackground
-│   ├── modals/         # Search, Import, About
+│   │   ├── navigation/     # App shell navigation
+│   ├── modals/         # About and shared dialogs
 │   │   └── player/         # Controls, Lyrics, Playlist
 │   ├── hooks/              # Custom React hooks
 │   ├── services/           # Business logic
 │   │   ├── audio/          # Audio processing
 │   │   ├── cache/          # IndexedDB caching
 │   │   ├── lyrics/         # Lyrics parsing
-│   │   ├── music/          # Music Search API
-│   │   └── streaming/      # Internet Archive
+│   │   ├── music/          # Local music helpers
 │   ├── contexts/           # React contexts
 │   ├── i18n/               # Internationalization
 │   └── utils/              # Utility functions
@@ -189,8 +186,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## 🙏 Credits
 
 - Design inspired by Apple Music
-- Music search API integration
-- Streaming from [Internet Archive](https://archive.org/)
+- Local file playback and lyric parsing
 
 ---
 

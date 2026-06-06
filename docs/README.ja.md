@@ -19,11 +19,10 @@
 
 ## ✨ 機能
 
-### 🎵 マルチソース音楽
+### 🎵 ローカル音楽
 - **ローカルファイル**: MP3、FLAC、WAV、OGG、M4A、AAC 対応
-- **オンライン音楽検索**: 楽曲、アルバム検索
-- **Internet Archive**: アーカイブオーディオコレクションへのアクセス
-- **URLインポート**: 直接オーディオURL対応
+- **ローカル歌詞**: 埋め込み歌詞と一致する `.lrc` / `.txt` 歌詞ファイルに対応
+- **セッションキュー**: ローカルインポートから再生キューを作成・編集
 
 ### 🎨 没入感のあるビジュアル
 - **6つの背景モード**: Gradient（グラデーション）、Fluid（フロー）、Melt（溶解）、Wave（波）、Halo（ハロー）、Swirl（渦巻）
@@ -61,7 +60,7 @@
 
 1. [Lumison Webデモ](https://salixfrost.github.io/lumison/) にアクセス
 2. クラウドアイコンをクリックまたはオーディオファイルをドラッグ＆ドロップ
-3. `Cmd/Ctrl+K` でオンライン検索
+3. 必要に応じて一致する `.lrc` / `.txt` 歌詞ファイルもインポート
 
 ### デスクトップアプリ
 
@@ -95,7 +94,6 @@ npm run tauri:dev
 | `P` | プレイリスト切替 |
 | `F` | フルスクリーン切替 |
 | `L` | 歌詞ビュー切替 |
-| `Cmd/Ctrl + K` | 検索パネルを開く |
 | `Esc` | ダイアログを閉じる |
 
 ---
@@ -133,16 +131,15 @@ lumison/
 ├── src/                    # フロントエンド (React)
 │   ├── components/         # UIコンポーネント
 │   │   ├── common/         # アイコン、SmartImage、Toast
-│   │   ├── layout/         # TopBar、ShaderBackground
-│   │   ├── modals/         # 検索、インポートについて
+│   │   ├── navigation/     # アプリシェルナビゲーション
+│   │   ├── modals/         # About と共有ダイアログ
 │   │   └── player/         # コントロール、歌詞、プレイリスト
 │   ├── hooks/              # カスタムReactフック
 │   ├── services/           # ビジネスロジック
 │   │   ├── audio/          # オーディオ処理
 │   │   ├── cache/          # IndexedDBキャッシュ
 │   │   ├── lyrics/          # 歌詞解析
-│   │   ├── music/          # 音楽検索API
-│   │   └── streaming/       # Internet Archive
+│   │   ├── music/          # ローカル音楽ヘルパー
 │   ├── contexts/           # Reactコンテキスト
 │   ├── i18n/              # 国際化
 │   └── utils/             # ユーティリティ関数
@@ -189,8 +186,7 @@ MIT License - 詳細は [LICENSE](LICENSE) をご覧ください。
 ## 🙏 クレジット
 
 - Apple Music からインスピレーションを得たデザイン
-- 音楽検索API統合
-- [Internet Archive](https://archive.org/) からのストリーミング
+- ローカルファイル再生と歌詞解析
 
 ---
 
