@@ -26,6 +26,7 @@ interface PlayerBarProps {
     lyrics: string;
     noMusic: string;
     selectSong: string;
+    progress: string;
   };
 }
 
@@ -116,7 +117,7 @@ const PlayerBar: React.FC<PlayerBarProps> = ({
               style={{
                 background: `linear-gradient(90deg, ${accentColor} ${progress}%, rgba(255,255,255,0.16) ${progress}%)`,
               }}
-              aria-label="Playback progress"
+              aria-label={labels.progress}
             />
             <span>{formatTime(duration)}</span>
           </div>

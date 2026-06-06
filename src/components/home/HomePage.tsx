@@ -13,7 +13,6 @@ interface HomePageProps {
   currentSongId?: string;
   isPlaying: boolean;
   onPlayIndex: (index: number) => void;
-  onPlayPause: () => void;
   onOpenSearch: () => void;
   onOpenImportDialog: () => void;
   onOpenQueue: () => void;
@@ -40,6 +39,8 @@ interface HomePageProps {
     sourceUrl: string;
     readyToPlay: string;
     emptyQuickPicks: string;
+    nowPlaying: string;
+    ready: string;
     shelfSummerParty: string;
     shelfKPop: string;
     shelfJPop: string;
@@ -84,7 +85,6 @@ const HomePage: React.FC<HomePageProps> = ({
   currentSongId,
   isPlaying,
   onPlayIndex,
-  onPlayPause,
   onOpenSearch,
   onOpenImportDialog,
   onOpenQueue,
@@ -130,7 +130,7 @@ const HomePage: React.FC<HomePageProps> = ({
     {
       id: "queue",
       title: labels.openQueue,
-      description: `${queue.length} ${labels.openQueue}`,
+      description: labels.emptyQuickPicks,
       icon: <QueueIcon className="h-5 w-5" />,
       onClick: onOpenQueue,
     },
@@ -248,7 +248,7 @@ const HomePage: React.FC<HomePageProps> = ({
                   </div>
                   {isCurrent && (
                     <span className="ml-auto shrink-0 text-xs font-bold text-white/58">
-                      {isPlaying ? "ON" : "READY"}
+                      {isPlaying ? labels.nowPlaying : labels.ready}
                     </span>
                   )}
                 </button>
@@ -323,7 +323,7 @@ const HomePage: React.FC<HomePageProps> = ({
       {activeSong && (
         <button
           type="button"
-          onClick={isPlaying ? onPlayPause : onOpenLyrics}
+          onClick={onOpenLyrics}
           className="fixed bottom-[154px] right-5 z-20 grid h-12 w-12 place-items-center rounded-full bg-white text-black shadow-2xl transition-transform duration-200 hover:scale-105 lg:hidden"
           aria-label={labels.lyrics}
         >

@@ -89,11 +89,11 @@ const TopCommandBar: React.FC<TopCommandBarProps> = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center justify-between gap-4 bg-gradient-to-b from-black/80 via-black/55 to-transparent px-4 pt-3 lg:px-8" data-tauri-drag-region>
+    <header className="sticky top-0 z-30 flex h-20 shrink-0 items-center justify-between gap-2 bg-gradient-to-b from-black/80 via-black/55 to-transparent px-4 pt-3 sm:gap-3 lg:px-8" data-tauri-drag-region>
       <button
         type="button"
         onClick={onSearchClick}
-        className="flex h-12 w-full max-w-[530px] items-center gap-4 rounded-lg border border-white/10 bg-white/[0.12] px-5 text-left text-[16px] font-semibold text-white/55 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-colors duration-200 hover:bg-white/[0.16] hover:text-white/75"
+        className="flex h-12 min-w-0 flex-1 items-center gap-4 rounded-lg border border-white/10 bg-white/[0.12] px-5 text-left text-[16px] font-semibold text-white/55 shadow-[0_8px_32px_rgba(0,0,0,0.25)] backdrop-blur-xl transition-colors duration-200 hover:bg-white/[0.16] hover:text-white/75 md:max-w-[530px]"
         aria-label={labels.searchPlaceholder}
         data-tauri-drag-region={false}
       >
@@ -112,7 +112,7 @@ const TopCommandBar: React.FC<TopCommandBarProps> = ({
 
         <button
           type="button"
-          className="grid h-10 w-10 place-items-center rounded-md text-white/82 transition-colors duration-200 hover:bg-white/10 hover:text-white"
+          className="hidden h-10 w-10 place-items-center rounded-md text-white/82 transition-colors duration-200 hover:bg-white/10 hover:text-white sm:grid"
           aria-label={labels.output}
           title={labels.output}
         >
@@ -217,7 +217,7 @@ const TopCommandBar: React.FC<TopCommandBarProps> = ({
           </button>
         </div>
 
-        <div className="grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-white/[0.10]">
+        <div className="hidden h-10 w-10 place-items-center overflow-hidden rounded-full bg-white/[0.10] sm:grid">
           {currentSong?.coverUrl ? (
             <img src={currentSong.coverUrl} alt="" className="h-full w-full object-cover" />
           ) : (

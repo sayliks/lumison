@@ -36,6 +36,7 @@ const LazyImportMusicDialog = lazy(importImportMusicDialog);
 
 const App: React.FC = () => {
   const { t } = useI18n();
+  const [activeView, setActiveView] = useState<AppView>("home");
 
   // Performance monitoring
   usePerformanceOptimization();
@@ -139,14 +140,6 @@ const App: React.FC = () => {
     handleOpenPlaylist,
     handleTogglePlaylist,
     handleViewModeChange,
-    isMobileLayout,
-    paneWidth,
-    activePanel,
-    dragOffsetX,
-    isDragging,
-    swipeHandlers,
-    mobileViewportRef,
-    toggleIndicator,
   } = useAppViewState({
     currentSong,
     playState,
@@ -288,10 +281,251 @@ const App: React.FC = () => {
     );
   }, [hasLoadedSong, lyricsKey, currentSong?.lyrics, playState, currentTime, matchStatus, lyricsFontSize, accentColor]);
 
-  const fallbackWidth = typeof window !== "undefined" ? window.innerWidth : 0;
-  const effectivePaneWidth = paneWidth || fallbackWidth;
-  const baseOffset = activePanel === "lyrics" ? -effectivePaneWidth : 0;
-  const mobileTranslate = baseOffset + dragOffsetX;
+  const handleOpenQueueView = useCallback(() => {
+    setActiveView("queue");
+  }, []);
+
+  const handleOpenLyricsView = useCallback(() => {
+    setActiveView("lyrics");
+  }, []);
+
+  const handleSearchPreset = useCallback(
+    (_query: string) => {
+      handleOpenSearch();
+    },
+    [handleOpenSearch],
+  );
+
+  const shellLabels = useMemo(
+    () => ({
+      home: t("home.navHome"),
+      explore: t("home.navExplore"),
+      library: t("home.navLibrary"),
+      queue: t("home.navQueue"),
+      lyrics: t("home.navLyrics"),
+      import: t("topBar.import"),
+      importMusic: t("home.importMusic"),
+      playingNext: t("playlist.playingNext"),
+      emptyLibrary: t("home.emptyLibrary"),
+      searchPlaceholder: t("home.searchPlaceholder"),
+      settings: t("topBar.settings"),
+      language: t("topBar.language"),
+      about: t("topBar.about"),
+      fontSize: t("lyrics.fontSize"),
+      minimize: t("topBar.minimize"),
+      fullscreen: t("topBar.enterFullscreen"),
+      close: t("topBar.close"),
+      output: t("home.output"),
+    }),
+    [t],
+  );
+
+  const homeLabels = useMemo(
+    () => ({
+      moods: [
+        t("home.moodRelax"),
+        t("home.moodFeelGood"),
+        t("home.moodEnergize"),
+        t("home.moodCommute"),
+        t("home.moodWorkout"),
+        t("home.moodRomance"),
+        t("home.moodSad"),
+        t("home.moodParty"),
+        t("home.moodFocus"),
+        t("home.moodSleep"),
+      ],
+      quickPicks: t("home.quickPicks"),
+      tunesForSeason: t("home.tunesForSeason"),
+      summer: t("home.summer"),
+      exploreSources: t("home.exploreSources"),
+      importLocal: t("playlist.importLocal"),
+      importUrl: t("playlist.importUrl"),
+      searchOnline: t("search.online"),
+      openQueue: t("home.openQueue"),
+      lyrics: t("home.navLyrics"),
+      noMusic: t("player.noMusicLoaded"),
+      selectSong: t("player.selectSong"),
+      sourceLocal: t("playlist.sourceLocal"),
+      sourceNetease: t("playlist.sourceNetease"),
+      sourceArchive: t("search.archive"),
+      sourceKugou: t("home.sourceKugou"),
+      sourceUrl: t("home.sourceUrl"),
+      readyToPlay: t("home.readyToPlay"),
+      emptyQuickPicks: t("home.emptyQuickPicks"),
+      nowPlaying: t("home.nowPlaying"),
+      ready: t("home.ready"),
+      shelfSummerParty: t("home.shelfSummerParty"),
+      shelfKPop: t("home.shelfKPop"),
+      shelfJPop: t("home.shelfJPop"),
+      shelfArchive: t("home.shelfArchive"),
+      shelfNetease: t("home.shelfNetease"),
+      shelfKugou: t("home.shelfKugou"),
+      shelfAlbums: t("home.shelfAlbums"),
+    }),
+    [t],
+  );
+
+  const queueLabels = useMemo(
+    () => ({
+      title: t("playlist.title"),
+      empty: t("playlist.empty"),
+      addSongs: t("playlist.addSongs"),
+      importLocal: t("playlist.importLocal"),
+      importUrl: t("playlist.importUrl"),
+      search: t("search.title"),
+      remove: t("playlist.remove"),
+      sourceLocal: t("playlist.sourceLocal"),
+      sourceNetease: t("playlist.sourceNetease"),
+      sourceArchive: t("search.archive"),
+      sourceKugou: t("home.sourceKugou"),
+      sourceUrl: t("home.sourceUrl"),
+    }),
+    [t],
+  );
+
+  const libraryLabels = useMemo(
+    () => ({
+      title: t("home.navLibrary"),
+      subtitle: t("home.librarySubtitle"),
+      empty: t("home.libraryEmpty"),
+      search: t("search.title"),
+      sourceLocal: t("playlist.sourceLocal"),
+      sourceNetease: t("playlist.sourceNetease"),
+      sourceArchive: t("search.archive"),
+      sourceKugou: t("home.sourceKugou"),
+      sourceUrl: t("home.sourceUrl"),
+    }),
+    [t],
+  );
+
+  const playerBarLabels = useMemo(
+    () => ({
+      play: t("player.play"),
+      pause: t("player.pause"),
+      previous: t("player.prev"),
+      next: t("player.next"),
+      queue: t("home.navQueue"),
+      lyrics: t("home.navLyrics"),
+      noMusic: t("player.noMusicLoaded"),
+      selectSong: t("player.selectSong"),
+      progress: t("home.playbackProgress"),
+    }),
+    [t],
+  );
+
+  const shellPlayerBar = useMemo(
+    () => (
+      <PlayerBar
+        currentSong={currentSong}
+        isPlaying={playState === PlayState.PLAYING}
+        currentTime={currentTime}
+        duration={duration}
+        accentColor={accentColor}
+        onPlayPause={togglePlay}
+        onPrev={playPrev}
+        onNext={playNext}
+        onSeek={handleSeek}
+        onOpenQueue={handleOpenQueueView}
+        onOpenLyrics={handleOpenLyricsView}
+        labels={playerBarLabels}
+      />
+    ),
+    [
+      accentColor,
+      currentSong,
+      currentTime,
+      duration,
+      handleOpenLyricsView,
+      handleOpenQueueView,
+      handleSeek,
+      playNext,
+      playPrev,
+      playState,
+      playerBarLabels,
+      togglePlay,
+    ],
+  );
+
+  const appContent = useMemo(() => {
+    if (activeView === "library") {
+      return (
+        <LibraryPage
+          queue={playlist.queue}
+          currentSongId={currentSong?.id}
+          onPlay={playIndex}
+          onSearchClick={handleOpenSearch}
+          labels={libraryLabels}
+        />
+      );
+    }
+
+    if (activeView === "queue") {
+      return (
+        <QueuePage
+          queue={playlist.queue}
+          currentSongId={currentSong?.id}
+          onPlay={playIndex}
+          onRemove={playlist.removeSongs}
+          onFilesSelected={handleFileChange}
+          onImportClick={() => setShowImportDialog(true)}
+          onSearchClick={handleOpenSearch}
+          labels={queueLabels}
+        />
+      );
+    }
+
+    if (activeView === "lyrics") {
+      return (
+        <div className="min-h-[640px]">
+          {lyricsSection || (
+            <div className="flex h-[420px] items-center justify-center text-lg font-bold text-white/45">
+              {t("lyrics.playMusicToViewLyrics")}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (activeView === "player") {
+      return <div className="min-h-[640px]">{controlsSection}</div>;
+    }
+
+    return (
+      <HomePage
+        queue={playlist.queue}
+        currentSong={currentSong}
+        currentSongId={currentSong?.id}
+        isPlaying={playState === PlayState.PLAYING}
+        onPlayIndex={playIndex}
+        onOpenSearch={handleOpenSearch}
+        onOpenImportDialog={() => setShowImportDialog(true)}
+        onOpenQueue={handleOpenQueueView}
+        onOpenLyrics={handleOpenLyricsView}
+        onFilesSelected={handleFileChange}
+        onSearchPreset={handleSearchPreset}
+        labels={homeLabels}
+      />
+    );
+  }, [
+    activeView,
+    controlsSection,
+    currentSong,
+    handleFileChange,
+    handleOpenLyricsView,
+    handleOpenQueueView,
+    handleOpenSearch,
+    handleSearchPreset,
+    homeLabels,
+    libraryLabels,
+    lyricsSection,
+    playIndex,
+    playState,
+    playlist.queue,
+    playlist.removeSongs,
+    queueLabels,
+    t,
+    setShowImportDialog,
+  ]);
 
   // Show loading screen while initializing
   if (isLoading) {
@@ -347,25 +581,6 @@ const App: React.FC = () => {
         onSeek={handleSeek}
       />
 
-      {/* Top Bar - Hidden in lyrics mode and fullscreen */}
-      {viewMode !== 'lyrics' && !isFullscreen && (
-        <TopBar
-          lyricsFontSize={lyricsFontSize}
-          onLyricsFontSizeChange={setLyricsFontSize}
-          onImportUrl={handleImportUrl}
-          onSearchClick={handleOpenSearch}
-          viewMode={viewMode}
-          onViewModeChange={handleViewModeChange}
-          currentSong={currentSong ? {
-            title: currentSong.title,
-            artist: currentSong.artist,
-            coverUrl: currentSong.coverUrl,
-          } : null}
-          isPlaying={playState === PlayState.PLAYING}
-          audioElement={audioRef.current}
-        />
-      )}
-
       {/* Search Modal - Always rendered to preserve state, visibility handled internally */}
       {(hasOpenedSearch || showSearch) && (
         <Suspense fallback={null}>
@@ -394,7 +609,7 @@ const App: React.FC = () => {
         </Suspense>
       )}
 
-      {/* Main Content Split */}
+      {/* Main Content */}
       {viewMode === 'lyrics' ? (
         // Lyrics Mode - Full screen centered lyrics view
         <div className="flex-1 w-full h-full">
@@ -421,94 +636,21 @@ const App: React.FC = () => {
             </Suspense>
           )}
         </div>
-      ) : isMobileLayout ? (
-        <div className="flex-1 relative w-full h-full">
-          <div
-            ref={mobileViewportRef}
-            className="w-full h-full overflow-hidden"
-            {...swipeHandlers}
-          >
-            <div
-              className={`flex h-full ${isDragging ? "transition-none" : "transition-transform duration-300"}`}
-              style={{
-                width: `${effectivePaneWidth * 2}px`,
-                transform: `translateX(${mobileTranslate}px)`,
-              }}
-            >
-              <div
-                className="flex-none h-full"
-                style={{ width: effectivePaneWidth }}
-              >
-                <div
-                  className={isFullscreen ? "w-full h-full transition-transform duration-300" : "w-full h-full"}
-                  style={isFullscreen ? { transform: "scale(1.2)", transformOrigin: "center center" } : undefined}
-                >
-                  {controlsSection}
-                </div>
-              </div>
-              <div
-                className="flex-none h-full"
-                style={{ width: effectivePaneWidth }}
-              >
-                {lyricsSection}
-              </div>
-            </div>
-          </div>
-          {hasLoadedSong && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-              <button
-                type="button"
-                onClick={toggleIndicator}
-                className="relative flex h-4 w-28 items-center justify-center rounded-full bg-white/10 backdrop-blur-2xl border border-white/15 transition-transform duration-200 active:scale-105"
-                style={{
-                  transform: `translateX(${isDragging ? dragOffsetX * 0.04 : 0}px)`,
-                }}
-              >
-                <span
-                  className={`absolute inset-0 rounded-full bg-white/25 backdrop-blur-[30px] transition-opacity duration-200 ${activePanel === "controls" ? "opacity-90" : "opacity-60"
-                    }`}
-                />
-              </button>
-            </div>
-          )}
-        </div>
       ) : (
-        // Desktop Layout - Center when not playing, split when playing
-        <div className="flex-1 relative w-full h-full overflow-hidden">
-          {/* Controls Section - Centered or left side */}
-          <div
-            className={`absolute inset-0 flex items-center justify-center ${hasEverPlayed ? '' : 'transition-all duration-1000 ease-in-out'
-              } ${hasEverPlayed
-                ? 'lg:w-1/2 lg:justify-center'
-                : 'w-full'
-              }`}
-            style={{
-              willChange: hasEverPlayed ? 'auto' : 'width',
-            }}
-          >
-            <div
-              className={isFullscreen ? 'transition-transform duration-300' : ''}
-              style={isFullscreen ? { transform: 'scale(1.2)', transformOrigin: 'center center' } : undefined}
-            >
-              {controlsSection}
-            </div>
-          </div>
-
-          {/* Lyrics Section - Slides in from right */}
-          <div
-            className={`absolute inset-y-0 right-0 w-1/2 ${hasEverPlayed ? '' : 'transition-all duration-1000'
-              } ${hasEverPlayed
-                ? 'translate-x-0 opacity-100'
-                : 'translate-x-full opacity-0 pointer-events-none'
-              }`}
-            style={{
-              willChange: hasEverPlayed ? 'auto' : 'transform, opacity',
-              transitionTimingFunction: hasEverPlayed ? 'auto' : 'cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          >
-            {lyricsSection}
-          </div>
-        </div>
+        <AppShell
+          activeView={activeView}
+          currentSong={currentSong}
+          lyricsFontSize={lyricsFontSize}
+          onLyricsFontSizeChange={setLyricsFontSize}
+          onViewChange={setActiveView}
+          onSearchClick={handleOpenSearch}
+          onImportClick={() => setShowImportDialog(true)}
+          onEnterImmersiveLyrics={() => handleViewModeChange("lyrics")}
+          playerBar={currentSong ? shellPlayerBar : undefined}
+          labels={shellLabels}
+        >
+          {appContent}
+        </AppShell>
       )}
     </div>
   );
