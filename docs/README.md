@@ -1,17 +1,11 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/public/icon.svg" alt="Lumison Logo" width="120">
+<img src="../public/icon.svg" alt="Lumison Logo" width="120">
 
 # Lumison
 
 **A Minimalist Music Player with Immersive Visuals**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tauri](https://img.shields.io/badge/Tauri-2.0-blue.svg)](https://tauri.app/)
-[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF.svg)](https://vite.dev/)
-
-[Live Demo](https://salixfrost.github.io/lumison/) • [Download](https://github.com/SalixJFrost/Lumison/releases) • [Report Issues](https://github.com/SalixJFrost/Lumison/issues)
+Local-first desktop player for imported audio files and local lyrics.
 
 </div>
 
@@ -19,11 +13,10 @@
 
 ## ✨ Features
 
-### 🎵 Multi-Source Music
+### 🎵 Local Music
 - **Local Files**: MP3, FLAC, WAV, OGG, M4A, AAC, and more
-- **Online Music Search**: Search and import songs, albums
-- **Internet Archive**: Access archived audio collections
-- **URL Import**: Direct audio URL support
+- **Local Lyrics**: Import embedded lyrics or matching `.lrc` / `.txt` sidecar files
+- **Session Queue**: Build and edit a playback queue from local imports
 
 ### 🎨 Visual Experience
 - **Six Background Modes**: Gradient, Fluid, Melt, Wave, Halo, Swirl
@@ -39,7 +32,7 @@
 - **Cross-platform**: Windows, macOS, Linux
 - **Keyboard Shortcuts**: Full hotkey support
 - **Multi-window**: Multi-screen support
-- **System Integration**: Media session API, auto-updates
+- **System Integration**: Media session API and native desktop windows
 
 ---
 
@@ -47,9 +40,9 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img1.png" alt="Lumison Player" width="800">
+<img src="../images/img1.png" alt="Lumison Player" width="800">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img2.png" alt="Lyrics View" width="800">
+<img src="../images/img2.png" alt="Lyrics View" width="800">
 
 </div>
 
@@ -57,29 +50,19 @@
 
 ## 🚀 Quick Start
 
-### Web Version
+### Local Web Preview
 
-1. Visit [Lumison Web Demo](https://salixfrost.github.io/lumison/)
-2. Click the cloud icon or drag & drop audio files
-3. Press `Cmd/Ctrl+K` to search online
+```bash
+npm install
+npm run dev
+```
 
 ### Desktop App
 
-Download the latest release from [GitHub Releases](https://github.com/SalixJFrost/Lumison/releases)
-
-**Build from Source:**
-
 ```bash
-# Clone and install
-git clone https://github.com/SalixJFrost/Lumison.git
-cd Lumison
 npm install
-
-# Build desktop app
-npm run tauri:build
-
-# Start development
 npm run tauri:dev
+npm run tauri:build
 ```
 
 ---
@@ -95,7 +78,6 @@ npm run tauri:dev
 | `P` | Toggle playlist |
 | `F` | Toggle fullscreen |
 | `L` | Toggle lyrics view |
-| `Cmd/Ctrl + K` | Open search panel |
 | `Esc` | Close dialogs |
 
 ---
@@ -133,16 +115,15 @@ lumison/
 ├── src/                    # Frontend (React)
 │   ├── components/         # UI components
 │   │   ├── common/         # Icons, SmartImage, Toast
-│   │   ├── layout/         # TopBar, ShaderBackground
-│   ├── modals/         # Search, Import, About
+│   │   ├── navigation/     # App shell navigation
+│   ├── modals/         # About and shared dialogs
 │   │   └── player/         # Controls, Lyrics, Playlist
 │   ├── hooks/              # Custom React hooks
 │   ├── services/           # Business logic
 │   │   ├── audio/          # Audio processing
 │   │   ├── cache/          # IndexedDB caching
 │   │   ├── lyrics/         # Lyrics parsing
-│   │   ├── music/          # Music Search API
-│   │   └── streaming/      # Internet Archive
+│   │   ├── music/          # Local music helpers
 │   ├── contexts/           # React contexts
 │   ├── i18n/               # Internationalization
 │   └── utils/              # Utility functions
@@ -189,16 +170,11 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## 🙏 Credits
 
 - Design inspired by Apple Music
-- Music search API integration
-- Streaming from [Internet Archive](https://archive.org/)
+- Local file playback and lyric parsing
 
 ---
 
 <div align="center">
-
-**[Download](https://github.com/SalixJFrost/Lumison/releases)** •
-**[Live Demo](https://salixfrost.github.io/lumison/)** •
-**[Report Issues](https://github.com/SalixJFrost/Lumison/issues)**
 
 Made with ❤️ using React + Tauri
 

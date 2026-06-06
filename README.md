@@ -5,13 +5,9 @@
 
 **A Minimalist Music Player with Immersive Visuals**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tauri](https://img.shields.io/badge/Tauri-2.0-blue.svg)](https://tauri.app/)
-[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF.svg)](https://vite.dev/)
+Local-first desktop player for imported audio files and local lyrics.
 
-[Live Demo](https://salixfrost.github.io/lumison/) • [Download](https://github.com/SalixJFrost/Lumison/releases) • [Documentation](docs/README.md)
+[Documentation](docs/README.md)
 
 </div>
 
@@ -19,7 +15,7 @@
 
 ## ✨ Features
 
-- **Multi-Source Music**: Local files, Online Music Search (Netease), Internet Archive, Album Search
+- **Local Music**: Local audio files, embedded lyrics, sidecar `.lrc` / `.txt` lyrics, and session queues
 - **Immersive Visuals**: Dynamic shader background (Gradient, Fluid, Melt, Wave, Halo, Swirl modes)
 - **Synchronized Lyrics**: Word-by-word highlighting with auto-scroll
 - **Desktop Experience**: Tauri 2.0 with keyboard shortcuts and multi-window support
@@ -41,20 +37,18 @@
 
 ## 🚀 Quick Start
 
-### Web Version
+### Local Web Preview
 
-Visit [Lumison Web Demo](https://salixfrost.github.io/lumison/) and start playing music
+```bash
+npm install
+npm run dev
+```
 
 ### Desktop App
 
-Download from [GitHub Releases](https://github.com/SalixJFrost/Lumison/releases)
-
-### Build from Source
-
 ```bash
-git clone https://github.com/SalixJFrost/Lumison.git
-cd Lumison
 npm install
+npm run tauri:dev
 npm run tauri:build
 ```
 

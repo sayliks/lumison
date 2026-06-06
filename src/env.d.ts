@@ -1,16 +1,8 @@
+/// <reference types="vite/client" />
+
 declare module "*?worker&url" {
   const url: string;
   export default url;
-}
-
-// Vite ImportMeta interface
-interface ImportMeta {
-  readonly env: {
-    readonly DEV: boolean;
-    readonly PROD: boolean;
-    readonly MODE: string;
-    [key: string]: any;
-  };
 }
 
 declare global {
@@ -27,10 +19,7 @@ declare global {
         };
       };
     };
-    electronAPI?: {
-      minimize: () => void;
-      maximize: () => void;
-      close: () => void;
-    };
   }
 }
+
+export {};

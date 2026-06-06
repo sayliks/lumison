@@ -11,13 +11,7 @@ fn main() {
                 let window = app.get_webview_window("main").unwrap();
                 window.open_devtools();
             }
-            
-            // Desktop-specific plugins
-            #[cfg(desktop)]
-            {
-                app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
-            }
-            
+
             Ok(())
         })
         .run();

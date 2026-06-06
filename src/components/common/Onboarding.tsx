@@ -11,14 +11,14 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   const steps = locale === "zh"
     ? [
-        { title: "搜索音乐", desc: "Ctrl+K 快速搜索网易云音乐", icon: "🔍" },
-        { title: "歌词模式", desc: "按 L 键进入全屏歌词", icon: "🎵" },
-        { title: "快捷键", desc: "使用键盘控制播放", icon: "⌨️" },
+        { title: "导入本地音乐", desc: "选择带内嵌歌词的本地音频文件", icon: "L" },
+        { title: "歌词模式", desc: "按 L 键进入全屏歌词", icon: "LYR" },
+        { title: "快捷键", desc: "使用键盘控制播放", icon: "KEY" },
       ]
     : [
-        { title: "Search Music", desc: "Ctrl+K to search Netease", icon: "🔍" },
-        { title: "Lyrics Mode", desc: "Press L for fullscreen lyrics", icon: "🎵" },
-        { title: "Keyboard", desc: "Use keyboard controls", icon: "⌨️" },
+        { title: "Import Local Music", desc: "Choose local audio files with embedded lyrics", icon: "L" },
+        { title: "Lyrics Mode", desc: "Press L for fullscreen lyrics", icon: "LYR" },
+        { title: "Keyboard", desc: "Use keyboard controls", icon: "KEY" },
       ];
 
   useEffect(() => {

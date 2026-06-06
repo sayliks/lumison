@@ -25,16 +25,8 @@ export interface Song {
   colors?: string[];
   needsLyricsMatch?: boolean;
   localLyrics?: LyricLine[];
-  isNetease?: boolean;
-  neteaseId?: string;
-  isYouTube?: boolean;
-  youtubeId?: string;
-  isAudioStream?: boolean;
-  audioStreamSource?: 'internet-archive' | 'self-hosted' | 'kugou';
   album?: string;
   duration?: number;
-  viewCount?: number;
-  channelTitle?: string;
 }
 
 export enum PlayState {

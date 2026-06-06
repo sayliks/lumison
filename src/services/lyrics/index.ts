@@ -26,9 +26,7 @@ export const parseLyrics = (content: string): LyricLine[] => {
 
 export * from './id3Parser';
 export * from './lrc';
-export * from './netease';
 export * from './parser';
 export * from './translation';
 export * from './types';
-export * from './matchCache';
 export * from './lrcApiWriter';

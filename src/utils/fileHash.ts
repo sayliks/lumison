@@ -28,14 +28,18 @@ export const computeBlobHash = async (blob: Blob): Promise<string> => {
 };
 
 /**
- * Compute a stable cache key for a file path/URL.
+ * Compute a stable cache key for a local file/blob reference.
  * For local blob URLs, we can't rely on the URL itself (changes each session).
  * This function attempts to extract a stable identifier:
- * - For remote URLs, returns the URL.
  * - For blob URLs, returns a promise that hashes the blob content.
  * - For data URLs, returns the data URL (can be large).
+ * - For other local strings, returns the string as-is.
  */
 export const getStableImageKey = async (src: string): Promise<string> => {
+  if (src.startsWith('http://') || src.startsWith('https://')) {
+    throw new Error('Remote image URLs are disabled in local-only mode');
+  }
+
   if (src.startsWith('blob:')) {
     // Fetch the blob and hash it
     try {
@@ -48,6 +52,5 @@ export const getStableImageKey = async (src: string): Promise<string> => {
       return src;
     }
   }
-  // For http/https/data URLs, use as-is
   return src;
 };

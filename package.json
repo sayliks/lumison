@@ -26,11 +26,9 @@
     "generate:all-icons": "node scripts/generate-icon.js && npm run tauri:icon"
   },
   "dependencies": {
-    "@google/genai": "^1.30.0",
     "@react-spring/web": "^10.0.3",
     "@tauri-apps/api": "^2.0.0",
     "@tauri-apps/plugin-process": "^2.3.1",
-    "@tauri-apps/plugin-updater": "^2.10.0",
     "blurhash": "^2.0.5",
     "colorthief": "^2.6.0",
     "jsmediatags": "^3.9.7",

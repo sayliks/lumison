@@ -112,7 +112,13 @@ const RAW_IMAGE_CACHE_LIMIT = cacheLimits.rawImage * 1024 * 1024;
 const rawImageCache = createSizeLimitedLRU(RAW_IMAGE_CACHE_LIMIT);
 
 // Create image cache - use SQLite for Tauri, memory LRU for web
-type CacheInterface = ReturnType<typeof createSizeLimitedLRU>;
+interface CacheInterface {
+  get(key: string): Blob | null | Promise<Blob | null>;
+  set(key: string, blob: Blob): void;
+  delete(key: string): void;
+  clear(): void;
+  getLimit(): number;
+}
 
 const createCacheProxy = (): CacheInterface => {
   let delegate: CacheInterface = createSizeLimitedLRU(IMAGE_CACHE_LIMIT);
@@ -157,6 +163,10 @@ export { imageResourceCache };
 export const audioResourceCache = createSizeLimitedLRU(AUDIO_CACHE_LIMIT);
 
 export const fetchImageBlobWithCache = async (url: string): Promise<Blob> => {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    throw new Error("Remote image fetching is disabled in local-only mode");
+  }
+
   const cached = rawImageCache.get(url);
   if (cached) {
     return cached;

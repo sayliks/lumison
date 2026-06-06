@@ -1,7 +1,6 @@
 /**
  * LrcApi Tag Writer Service
- * Writes metadata and lyrics to audio files using LrcApi
- * https://github.com/HisAtri/LrcApi
+ * Writes metadata and lyrics to audio files using a local LrcApi service.
  */
 
 const LRC_API_URL = 'http://127.0.0.1:28883/tag';

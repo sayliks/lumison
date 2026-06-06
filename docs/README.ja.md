@@ -1,17 +1,11 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/public/icon.svg" alt="Lumison Logo" width="120">
+<img src="../public/icon.svg" alt="Lumison Logo" width="120">
 
 # Lumison
 
 **没入感のあるミニマリスト音楽プレーヤー**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tauri](https://img.shields.io/badge/Tauri-2.0-blue.svg)](https://tauri.app/)
-[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF.svg)](https://vite.dev/)
-
-[デモ](https://salixfrost.github.io/lumison/) • [ダウンロード](https://github.com/SalixJFrost/Lumison/releases) • [問題報告](https://github.com/SalixJFrost/Lumison/issues)
+インポートした音声ファイルとローカル歌詞のためのローカル優先デスクトッププレーヤー。
 
 </div>
 
@@ -19,11 +13,10 @@
 
 ## ✨ 機能
 
-### 🎵 マルチソース音楽
+### 🎵 ローカル音楽
 - **ローカルファイル**: MP3、FLAC、WAV、OGG、M4A、AAC 対応
-- **オンライン音楽検索**: 楽曲、アルバム検索
-- **Internet Archive**: アーカイブオーディオコレクションへのアクセス
-- **URLインポート**: 直接オーディオURL対応
+- **ローカル歌詞**: 埋め込み歌詞と一致する `.lrc` / `.txt` 歌詞ファイルに対応
+- **セッションキュー**: ローカルインポートから再生キューを作成・編集
 
 ### 🎨 没入感のあるビジュアル
 - **6つの背景モード**: Gradient（グラデーション）、Fluid（フロー）、Melt（溶解）、Wave（波）、Halo（ハロー）、Swirl（渦巻）
@@ -39,7 +32,7 @@
 - **クロスプラットフォーム**: Windows、macOS、Linux
 - **キーボードショートカット**: 完全なホットキーサポート
 - **マルチウィンドウ**: マルチスクリーン対応
-- **システム統合**: メディアセッションAPI、自動更新
+- **システム統合**: メディアセッションAPIとネイティブデスクトップウィンドウ
 
 ---
 
@@ -47,9 +40,9 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img1.png" alt="Lumison プレーヤー" width="800">
+<img src="../images/img1.png" alt="Lumison プレーヤー" width="800">
 
-<img src="https://raw.githubusercontent.com/SalixJFrost/Lumison/main/images/img2.png" alt="歌詞ビュー" width="800">
+<img src="../images/img2.png" alt="歌詞ビュー" width="800">
 
 </div>
 
@@ -57,29 +50,19 @@
 
 ## 🚀 クイックスタート
 
-### Webバージョン
+### ローカルWebプレビュー
 
-1. [Lumison Webデモ](https://salixfrost.github.io/lumison/) にアクセス
-2. クラウドアイコンをクリックまたはオーディオファイルをドラッグ＆ドロップ
-3. `Cmd/Ctrl+K` でオンライン検索
+```bash
+npm install
+npm run dev
+```
 
 ### デスクトップアプリ
 
-[GitHub Releases](https://github.com/SalixJFrost/Lumison/releases) から最新バージョンをダウンロード
-
-**ソースからビルド:**
-
 ```bash
-# クローンとインストール
-git clone https://github.com/SalixJFrost/Lumison.git
-cd Lumison
 npm install
-
-# デスクトップアプリをビルド
-npm run tauri:build
-
-# 開発モードで起動
 npm run tauri:dev
+npm run tauri:build
 ```
 
 ---
@@ -95,7 +78,6 @@ npm run tauri:dev
 | `P` | プレイリスト切替 |
 | `F` | フルスクリーン切替 |
 | `L` | 歌詞ビュー切替 |
-| `Cmd/Ctrl + K` | 検索パネルを開く |
 | `Esc` | ダイアログを閉じる |
 
 ---
@@ -133,16 +115,15 @@ lumison/
 ├── src/                    # フロントエンド (React)
 │   ├── components/         # UIコンポーネント
 │   │   ├── common/         # アイコン、SmartImage、Toast
-│   │   ├── layout/         # TopBar、ShaderBackground
-│   │   ├── modals/         # 検索、インポートについて
+│   │   ├── navigation/     # アプリシェルナビゲーション
+│   │   ├── modals/         # About と共有ダイアログ
 │   │   └── player/         # コントロール、歌詞、プレイリスト
 │   ├── hooks/              # カスタムReactフック
 │   ├── services/           # ビジネスロジック
 │   │   ├── audio/          # オーディオ処理
 │   │   ├── cache/          # IndexedDBキャッシュ
 │   │   ├── lyrics/          # 歌詞解析
-│   │   ├── music/          # 音楽検索API
-│   │   └── streaming/       # Internet Archive
+│   │   ├── music/          # ローカル音楽ヘルパー
 │   ├── contexts/           # Reactコンテキスト
 │   ├── i18n/              # 国際化
 │   └── utils/             # ユーティリティ関数
@@ -189,16 +170,11 @@ MIT License - 詳細は [LICENSE](LICENSE) をご覧ください。
 ## 🙏 クレジット
 
 - Apple Music からインスピレーションを得たデザイン
-- 音楽検索API統合
-- [Internet Archive](https://archive.org/) からのストリーミング
+- ローカルファイル再生と歌詞解析
 
 ---
 
 <div align="center">
-
-**[ダウンロード](https://github.com/SalixJFrost/Lumison/releases)** •
-**[デモ](https://salixfrost.github.io/lumison/)** •
-**[問題報告](https://github.com/SalixJFrost/Lumison/issues)**
 
 ❤️ で製作、React + Tauri 使用
 
