@@ -1,0 +1,287 @@
+# Instincts generated from https://github.com/sayliks/lumison
+# Generated: 2026-06-01T08:59:09.762Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: lumison-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/sayliks/lumison
+---
+
+# Lumison Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: refactor, fix, feat
+
+## Evidence
+
+- 4 commits analyzed
+- Detected conventional commit pattern
+- Examples: fix: update project overview and Tauri commands in CLAUDE.md, refactor: update project overview and architecture details in AGENTS.md
+
+---
+id: lumison-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/sayliks/lumison
+---
+
+# Lumison Commit Length
+
+## Action
+
+Write moderate-length commit messages (~71 characters)
+
+## Evidence
+
+- Average commit message length: 71 chars
+- Based on 4 commits
+
+---
+id: lumison-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/sayliks/lumison
+---
+
+# Lumison Naming Files
+
+## Action
+
+Use PascalCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: PascalCase
+
+---
+id: lumison-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/sayliks/lumison
+---
+
+# Lumison Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: lumison-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/sayliks/lumison
+---
+
+# Lumison Export Style
+
+## Action
+
+Prefer default exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: default
+
+---
+id: lumison-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/sayliks/lumison
+---
+
+# Lumison Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: lumison-workflow-update-project-documentation
+trigger: "when doing update project documentation"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/sayliks/lumison
+---
+
+# Lumison Workflow Update Project Documentation
+
+## Action
+
+Follow the update-project-documentation workflow:
+1. Edit one or more markdown documentation files (e.g., CLAUDE.md, AGENTS.md)
+2. Commit changes with a message indicating documentation update
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: CLAUDE.md, AGENTS.md
+
+---
+id: lumison-instinct-naming-conventions
+trigger: "When creating or renaming files, functions, classes, or constants in the codebase"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: sayliks/lumison
+---
+
+# Lumison Instinct Naming Conventions
+
+## Action
+
+Apply naming conventions: files and classes in PascalCase, functions in camelCase, constants in SCREAMING_SNAKE_CASE
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions
+- Consistent naming in commit examples
+
+---
+id: lumison-instinct-import-style
+trigger: "When importing modules within the codebase"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: sayliks/lumison
+---
+
+# Lumison Instinct Import Style
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern in codeStyle.importStyle: relative
+
+---
+id: lumison-instinct-export-style
+trigger: "When exporting modules or components"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: sayliks/lumison
+---
+
+# Lumison Instinct Export Style
+
+## Action
+
+Use default exports
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle: default
+
+---
+id: lumison-instinct-git-commit-format
+trigger: "When making a git commit"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: sayliks/lumison
+---
+
+# Lumison Instinct Git Commit Format
+
+## Action
+
+Format commit message as <type>: <description> using one of the prefixes: refactor, fix, feat
+
+## Evidence
+
+- Pattern in commits.type: conventional
+- Prefixes in commits.prefixes
+- Examples: 'fix: update project overview and Tauri commands in CLAUDE.md'
+
+---
+id: lumison-instinct-git-commit-length
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: sayliks/lumison
+---
+
+# Lumison Instinct Git Commit Length
+
+## Action
+
+Keep commit message concise, around 70 characters on average
+
+## Evidence
+
+- commits.averageLength: 71
+
+---
+id: lumison-instinct-update-project-documentation
+trigger: "When project documentation (overview, architecture, or commands) needs updating or clarification"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: sayliks/lumison
+---
+
+# Lumison Instinct Update Project Documentation
+
+## Action
+
+Edit CLAUDE.md or AGENTS.md and commit with a message indicating documentation update
+
+## Evidence
+
+- Workflow: update-project-documentation
+- Commits: 'fix: update project overview and Tauri commands in CLAUDE.md', 'refactor: update project overview and architecture details in AGENTS.md'
+
+---
+id: lumison-instinct-test-location
+trigger: "When creating new tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: sayliks/lumison
+---
+
+# Lumison Instinct Test Location
+
+## Action
+
+Place test files in a separate directory from source code
+
+## Evidence
+
+- architecture.testLocation: separate
+
